@@ -108,7 +108,7 @@ export default async function DashboardPage() {
                 key={deal.id}
                 deal={{
                   ...deal,
-                  parties: deal.deal_parties,
+                  parties: deal.parties,
                   documents: deal.documents,
                 }}
               />
