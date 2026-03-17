@@ -1,0 +1,97 @@
+'use client';
+
+import { User, Mail, Phone } from 'lucide-react';
+import { Badge } from '@/components/ui/Badge';
+import { Button } from '@/components/ui/Button';
+import { PARTY_ROLE_LABELS } from '@/types';
+import type { DealParty } from '@/types';
+
+interface PartyListProps {
+  parties: DealParty[];
+  onInvite?: () => void;
+  canInvite?: boolean;
+  currentUserId?: string;
+}
+
+const PARTY_STATUS_STYLES: Record<string, string> = {
+  invited: 'bg-slate-100 text-slate-600',
+  viewed: 'bg-blue-50 text-blue-600',
+  signing: 'bg-amber-50 text-amber-600',
+  signed: 'bg-emerald-50 text-emerald-700',
+  declined: 'bg-red-50 text-red-600',
+};
+
+export function PartyList({
+  parties,
+  onInvite,
+  canInvite = false,
+}: PartyListProps) {
+  return (
+    <div className="space-y-3">
+      <div className="flex items-center justify-between">
+        <h3 className="font-medium text-navy-600">Parties</h3>
+        {canInvite && onInvite && (
+          <Button size="sm" onClick={onInvite}>
+            + Invite Party
+          </Button>
+        )}
+      </div>
+
+      {parties.length === 0 ? (
+        <div className="text-center py-8 text-navy-400 text-sm border border-dashed border-cream-300 rounded-lg">
+          No parties invited yet.
+          {canInvite && (
+            <Button variant="outline" size="sm" className="mt-2" onClick={onInvite}>
+              Invite first party
+            </Button>
+          )}
+        </div>
+      ) : (
+        <ul className="space-y-2">
+          {parties.map((party) => (
+            <li
+              key={party.id}
+              className="flex items-center justify-between p-3 bg-cream-50 rounded-lg border border-cream-200"
+            >
+              <div className="flex items-center gap-3 min-w-0">
+                <div className="w-9 h-9 rounded-full bg-navy-100 flex items-center justify-center flex-shrink-0">
+                  <User className="h-4 w-4 text-navy-600" />
+                </div>
+                <div className="min-w-0">
+                  <p className="font-medium text-navy-600 truncate">
+                    {party.invite_name}
+                  </p>
+                  <p className="text-xs text-navy-400">
+                    {PARTY_ROLE_LABELS[party.role]}
+                  </p>
+                  {(party.invite_phone || party.invite_email) && (
+                    <div className="flex items-center gap-3 mt-1 text-xs text-navy-400">
+                      {party.invite_phone && (
+                        <span className="inline-flex items-center gap-1">
+                          <Phone className="h-3 w-3" />
+                          {party.invite_phone}
+                        </span>
+                      )}
+                      {party.invite_email && (
+                        <span className="inline-flex items-center gap-1 truncate">
+                          <Mail className="h-3 w-3 flex-shrink-0" />
+                          {party.invite_email}
+                        </span>
+                      )}
+                    </div>
+                  )}
+                </div>
+              </div>
+              <Badge
+                variant="outline"
+                className={`ml-2 flex-shrink-0 ${PARTY_STATUS_STYLES[party.status] ?? 'bg-slate-100 text-slate-600'}`}
+              >
+                {party.status}
+              </Badge>
+            </li>
+          ))}
+        </ul>
+      )}
+    </div>
+  );
+}

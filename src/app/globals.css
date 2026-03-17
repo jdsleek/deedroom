@@ -1,0 +1,112 @@
+@import "tailwindcss";
+
+:root {
+  /* Primary palette */
+  --navy-600: #1a2744;
+  --navy-400: #4e638a;
+  --navy-100: #e8ecf2;
+  --gold-500: #d4943e;
+  --gold-400: #e5b366;
+  --gold-100: #fdf6ec;
+  --cream-100: #f8f7f4;
+  --cream-200: #f0ede8;
+
+  /* Status colors */
+  --status-draft: #64748b;
+  --status-sent: #2563eb;
+  --status-viewing: #7c3aed;
+  --status-signing: #d97706;
+  --status-completed: #059669;
+  --status-cancelled: #dc2626;
+
+  --background: var(--cream-100);
+  --foreground: var(--navy-600);
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --font-display: var(--font-display), serif;
+  --font-sans: var(--font-sans), system-ui, sans-serif;
+
+  /* Navy palette */
+  --color-navy-50: #f5f7fa;
+  --color-navy-100: #e8ecf2;
+  --color-navy-200: #cfd7e3;
+  --color-navy-300: #a8b5c9;
+  --color-navy-400: #7a8da8;
+  --color-navy-500: #5c6d8a;
+  --color-navy-600: #1a2744;
+  --color-navy-700: #141d32;
+  --color-navy-800: #0f1625;
+  --color-navy-900: #0a0e18;
+
+  /* Gold palette */
+  --color-gold-50: #fdfaf5;
+  --color-gold-100: #fdf6ec;
+  --color-gold-200: #f9e9d0;
+  --color-gold-300: #f2d9a8;
+  --color-gold-400: #e5b366;
+  --color-gold-500: #d4943e;
+  --color-gold-600: #b87a2e;
+  --color-gold-700: #8c5c23;
+  --color-gold-800: #5c3d17;
+  --color-gold-900: #2d1f0c;
+
+  /* Cream palette */
+  --color-cream-50: #fcfcfb;
+  --color-cream-100: #f8f7f4;
+  --color-cream-200: #f0ede8;
+  --color-cream-300: #e5e0d9;
+  --color-cream-400: #d4cdc2;
+
+  /* Shadows */
+  --shadow-card: 0 1px 3px 0 rgb(26 39 68 / 0.08), 0 1px 2px -1px rgb(26 39 68 / 0.08);
+  --shadow-raised: 0 4px 6px -1px rgb(26 39 68 / 0.1), 0 2px 4px -2px rgb(26 39 68 / 0.1);
+  --shadow-modal: 0 25px 50px -12px rgb(26 39 68 / 0.25);
+
+  /* Animations */
+  --animate-fade-in: fade-in 0.2s ease-out;
+  --animate-slide-up: slide-up 0.3s ease-out;
+  --animate-pulse-gold: pulse-gold 2s ease-in-out infinite;
+}
+
+@keyframes fade-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes slide-up {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes pulse-gold {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.7;
+  }
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+  font-family: var(--font-sans);
+}
+
+.font-display {
+  font-family: var(--font-display);
+}
