@@ -16,8 +16,8 @@ export function Card({ children, className, onClick }: CardProps) {
       onClick={onClick}
       onKeyDown={onClick ? (e) => e.key === 'Enter' && onClick() : undefined}
       className={cn(
-        'rounded-xl border border-cream-300 bg-cream-50 p-6 shadow-card transition-shadow hover:shadow-raised',
-        onClick && 'cursor-pointer',
+        'rounded-2xl border border-warm-200 bg-white p-5 shadow-xs transition-all duration-200',
+        onClick && 'cursor-pointer hover:shadow-md active:scale-[0.99]',
         className
       )}
     >
@@ -32,12 +32,12 @@ export function CardHeader({ children, className }: CardProps) {
 
 export function CardTitle({ children, className }: CardProps) {
   return (
-    <h3 className={cn('font-display text-lg font-semibold text-navy-600', className)}>
+    <h3 className={cn('font-display text-lg font-bold text-warm-900', className)}>
       {children}
     </h3>
   );
 }
 
 export function CardContent({ children, className }: CardProps) {
-  return <div className={cn('text-navy-400', className)}>{children}</div>;
+  return <div className={cn('text-warm-600', className)}>{children}</div>;
 }

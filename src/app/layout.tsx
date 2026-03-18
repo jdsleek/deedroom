@@ -1,8 +1,8 @@
-import type { Metadata } from "next";
-import { Playfair_Display, DM_Sans } from "next/font/google";
+import type { Metadata, Viewport } from "next";
+import { Plus_Jakarta_Sans, DM_Sans } from "next/font/google";
 import "./globals.css";
 
-const playfair = Playfair_Display({
+const jakarta = Plus_Jakarta_Sans({
   variable: "--font-display",
   subsets: ["latin"],
   display: "swap",
@@ -15,9 +15,23 @@ const dmSans = DM_Sans({
 });
 
 export const metadata: Metadata = {
-  title: "DeedRoom — Secure Transaction Rooms for Nigerian Real Estate",
+  title: "SignNest — Close Deals. Collect Signatures. Build Trust.",
   description:
-    "Create private deal rooms, share documents with permissions, collect e-signatures, and produce executed PDFs with full audit trail.",
+    "Secure transaction rooms for real estate. Create deals, share documents, collect e-signatures, and produce executed PDFs with full audit trail.",
+  applicationName: "SignNest",
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: "default",
+    title: "SignNest",
+  },
+};
+
+export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1,
+  maximumScale: 1,
+  userScalable: false,
+  viewportFit: "cover",
 };
 
 export default function RootLayout({
@@ -28,7 +42,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body
-        className={`${playfair.variable} ${dmSans.variable} font-sans antialiased`}
+        className={`${jakarta.variable} ${dmSans.variable} font-sans antialiased bg-background text-foreground`}
       >
         {children}
       </body>

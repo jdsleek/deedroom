@@ -2,9 +2,9 @@
 
 import { useEffect, useState } from 'react'
 import { useSession } from 'next-auth/react'
+import { signOut } from 'next-auth/react'
 import { Button } from '@/components/ui/Button'
 import { Input } from '@/components/ui/Input'
-import { Card } from '@/components/ui/Card'
 import type { Profile } from '@/types'
 
 export default function SettingsPage() {
@@ -60,25 +60,68 @@ export default function SettingsPage() {
   if (loading) {
     return (
       <div className="flex min-h-[200px] items-center justify-center">
-        <div className="h-8 w-8 animate-spin rounded-full border-2 border-gold-500 border-t-transparent" />
+        <div className="h-8 w-8 animate-spin rounded-full border-2 border-coral-500 border-t-transparent" />
       </div>
     )
   }
 
   return (
-    <div className="max-w-2xl space-y-6">
-      <h1 className="font-display text-2xl font-semibold text-navy-600">Settings</h1>
-      <Card className="p-6">
-        <h2 className="font-display text-lg font-semibold text-navy-600">Profile</h2>
-        <form onSubmit={handleSave} className="mt-4 space-y-4">
-          <Input label="Full name" value={form.full_name} onChange={(e) => setForm((f) => ({ ...f, full_name: e.target.value }))} required />
-          <Input label="Phone" value={form.phone} onChange={(e) => setForm((f) => ({ ...f, phone: e.target.value }))} placeholder="+2348012345678" />
-          <Input label="Email" type="email" value={form.email} disabled />
-          <Input label="Company name" value={form.company_name} onChange={(e) => setForm((f) => ({ ...f, company_name: e.target.value }))} placeholder="Your agency or company" />
-          {message && <p className="text-sm text-navy-600">{message}</p>}
-          <Button type="submit" disabled={saving}>{saving ? 'Saving…' : 'Save changes'}</Button>
+    <div className="max-w-2xl space-y-8">
+      <h1 className="font-display text-2xl font-semibold text-warm-900">Settings</h1>
+
+      {/* Profile section - white card */}
+      <div className="rounded-2xl border border-warm-200 bg-white p-6 shadow-xs">
+        <h2 className="font-display text-lg font-semibold text-warm-900 mb-4">Profile</h2>
+        <form onSubmit={handleSave} className="space-y-4">
+          <Input
+            label="Full name"
+            value={form.full_name}
+            onChange={(e) => setForm((f) => ({ ...f, full_name: e.target.value }))}
+            required
+          />
+          <Input
+            label="Phone"
+            value={form.phone}
+            onChange={(e) => setForm((f) => ({ ...f, phone: e.target.value }))}
+            placeholder="+2348012345678"
+          />
+          <Input
+            label="Email"
+            type="email"
+            value={form.email}
+            disabled
+          />
+          <Input
+            label="Company name"
+            value={form.company_name}
+            onChange={(e) => setForm((f) => ({ ...f, company_name: e.target.value }))}
+            placeholder="Your agency or company"
+          />
+          {message && (
+            <p className={`text-sm ${message === 'Saved!' ? 'text-teal-600' : 'text-red-600'}`}>
+              {message}
+            </p>
+          )}
+          <Button type="submit" disabled={saving}>
+            {saving ? 'Saving…' : 'Save changes'}
+          </Button>
         </form>
-      </Card>
+      </div>
+
+      {/* Sign out section */}
+      <div className="rounded-2xl border border-warm-200 bg-white p-6 shadow-xs">
+        <h2 className="font-display text-lg font-semibold text-warm-900 mb-2">Account</h2>
+        <p className="text-sm text-warm-600 mb-4">
+          Sign out of your account on this device.
+        </p>
+        <Button
+          variant="outline"
+          onClick={() => signOut({ callbackUrl: '/login' })}
+          className="border-warm-200 text-warm-700 hover:bg-warm-50"
+        >
+          Sign out
+        </Button>
+      </div>
     </div>
   )
 }

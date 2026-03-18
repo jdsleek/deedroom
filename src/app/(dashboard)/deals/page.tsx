@@ -45,22 +45,22 @@ export default function DealsPage() {
   return (
     <div className="space-y-6">
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-        <h1 className="font-display text-2xl font-semibold text-navy-600">Deals</h1>
+        <h1 className="font-display text-2xl font-semibold text-warm-900">Deals</h1>
         <Link href="/deals/new">
           <Button>+ New Deal</Button>
         </Link>
       </div>
 
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-        <div className="flex gap-2 overflow-x-auto pb-2">
+        <div className="flex gap-2 overflow-x-auto scrollbar-hide pb-2">
           {tabs.map((tab) => (
             <button
               key={tab.key}
               onClick={() => setFilter(tab.key)}
-              className={`whitespace-nowrap rounded-lg px-4 py-2 text-sm font-medium transition-colors ${
+              className={`whitespace-nowrap rounded-full px-4 py-2 text-sm font-medium transition-colors ${
                 filter === tab.key
-                  ? 'bg-navy-600 text-white'
-                  : 'bg-cream-200 text-navy-400 hover:bg-cream-300'
+                  ? 'bg-coral-500 text-white'
+                  : 'border border-warm-200 bg-white text-warm-500 hover:border-warm-300 hover:text-warm-700'
               }`}
             >
               {tab.label}
@@ -77,7 +77,7 @@ export default function DealsPage() {
           <select
             value={sort}
             onChange={(e) => setSort(e.target.value as typeof sort)}
-            className="rounded-lg border border-cream-300 bg-white px-3 py-2 text-sm text-navy-600"
+            className="rounded-xl border border-warm-200 bg-white px-3 py-2 text-sm text-warm-800 focus:border-coral-400 focus:outline-none focus:ring-2 focus:ring-coral-500/20"
           >
             <option value="newest">Newest</option>
             <option value="oldest">Oldest</option>
@@ -88,11 +88,11 @@ export default function DealsPage() {
 
       {loading ? (
         <div className="flex items-center justify-center py-12">
-          <div className="h-8 w-8 animate-spin rounded-full border-2 border-gold-500 border-t-transparent" />
+          <div className="h-8 w-8 animate-spin rounded-full border-2 border-coral-500 border-t-transparent" />
         </div>
       ) : deals.length === 0 ? (
-        <div className="rounded-xl border-2 border-dashed border-cream-400 bg-cream-50 p-12 text-center">
-          <p className="text-navy-400">No deals found</p>
+        <div className="rounded-2xl border-2 border-dashed border-warm-200 bg-warm-50 p-12 text-center shadow-xs">
+          <p className="text-warm-600">No deals found</p>
           <Link href="/deals/new" className="mt-4 inline-block">
             <Button>Create your first deal</Button>
           </Link>

@@ -30,6 +30,7 @@ export function DealTimeline({
         const stepIndex = STATUS_ORDER.indexOf(step.status as DealStatus);
         const isActive = stepIndex <= currentIndex;
         const isCompleted = stepIndex < currentIndex;
+        const isCurrent = stepIndex === currentIndex;
         const isLast = index === STEPS.length - 1;
 
         return (
@@ -38,9 +39,9 @@ export function DealTimeline({
               <div
                 className={cn(
                   'w-8 h-8 rounded-full flex items-center justify-center text-xs font-medium border-2 transition-colors',
-                  isCompleted && 'bg-gold-500 border-gold-500 text-white',
-                  isActive && !isCompleted && 'border-gold-500 text-gold-600 bg-gold-50',
-                  !isActive && 'border-cream-300 bg-cream-100 text-navy-400'
+                  isCompleted && 'bg-coral-500 border-coral-500 text-white',
+                  isCurrent && !isCompleted && 'border-coral-500 text-coral-600 bg-coral-100',
+                  !isActive && 'border-warm-200 bg-warm-200 text-warm-500'
                 )}
               >
                 {isCompleted ? '✓' : index + 1}
@@ -48,7 +49,7 @@ export function DealTimeline({
               <span
                 className={cn(
                   'text-xs mt-1.5 font-medium',
-                  isActive ? 'text-navy-600' : 'text-navy-400'
+                  isActive ? 'text-warm-800' : 'text-warm-500'
                 )}
               >
                 {step.label}
@@ -58,7 +59,7 @@ export function DealTimeline({
               <div
                 className={cn(
                   'flex-1 h-0.5 -mx-1',
-                  isCompleted ? 'bg-gold-500' : 'bg-cream-300'
+                  isCompleted ? 'bg-coral-500' : 'bg-warm-200'
                 )}
               />
             )}

@@ -1,10 +1,8 @@
 'use client'
 
 import { type Document } from '@/types'
-import { Card } from '@/components/ui/Card'
 import { Badge } from '@/components/ui/Badge'
-import { Button } from '@/components/ui/Button'
-import { cn, formatFileSize } from '@/lib/utils'
+import { formatFileSize } from '@/lib/utils'
 import { FileText, Download, Eye, Trash2 } from 'lucide-react'
 
 const DOC_CATEGORY_LABELS: Record<string, string> = {
@@ -30,41 +28,56 @@ export function DocumentCard({ doc, onView, onDownload, onDelete, isCreator }: D
   const canDownload = doc.permission === 'download'
 
   return (
-    <Card className="p-4 hover:shadow-raised transition-shadow">
+    <div className="rounded-2xl border border-warm-200 bg-white p-4 shadow-xs transition-shadow hover:shadow-md">
       <div className="flex items-start gap-3">
-        <div className="p-2 rounded-lg bg-navy-50 text-navy-600">
-          <FileText className="size-6" />
+        <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-coral-50 text-coral-500">
+          <FileText className="size-5" />
         </div>
-        <div className="flex-1 min-w-0">
-          <p className="font-medium text-navy-800 truncate">{doc.name}</p>
-          <div className="flex flex-wrap gap-1.5 mt-1">
+        <div className="min-w-0 flex-1">
+          <p className="font-medium text-warm-900 truncate">{doc.name}</p>
+          <div className="mt-1.5 flex flex-wrap items-center gap-2">
             <Badge variant="outline" className="text-xs">
               {DOC_CATEGORY_LABELS[doc.category] ?? doc.category}
             </Badge>
-            <Badge variant="soft" className={doc.is_executed ? 'bg-emerald-50 text-emerald-700' : 'bg-slate-100 text-slate-600'}>
+            <Badge variant={doc.is_executed ? 'success' : 'secondary'} className="text-xs">
               {doc.is_executed ? 'Executed' : 'Draft'}
             </Badge>
             {doc.file_size != null && (
-              <span className="text-xs text-navy-400">{formatFileSize(doc.file_size)}</span>
+              <span className="text-xs text-warm-500">{formatFileSize(doc.file_size)}</span>
             )}
           </div>
         </div>
-        <div className="flex gap-1">
-          <Button variant="ghost" size="sm" onClick={onView} aria-label="View">
+        <div className="flex shrink-0 gap-1">
+          <button
+            type="button"
+            onClick={onView}
+            aria-label="View"
+            className="rounded-lg p-2 text-warm-400 hover:bg-warm-50 hover:text-warm-600 transition-colors"
+          >
             <Eye className="size-4" />
-          </Button>
+          </button>
           {canDownload && (
-            <Button variant="ghost" size="sm" onClick={onDownload} aria-label="Download">
+            <button
+              type="button"
+              onClick={onDownload}
+              aria-label="Download"
+              className="rounded-lg p-2 text-warm-400 hover:bg-warm-50 hover:text-warm-600 transition-colors"
+            >
               <Download className="size-4" />
-            </Button>
+            </button>
           )}
           {isCreator && (
-            <Button variant="ghost" size="sm" onClick={onDelete} className="text-red-600 hover:bg-red-50" aria-label="Delete">
+            <button
+              type="button"
+              onClick={onDelete}
+              aria-label="Delete"
+              className="rounded-lg p-2 text-warm-400 hover:bg-red-50 hover:text-red-600 transition-colors"
+            >
               <Trash2 className="size-4" />
-            </Button>
+            </button>
           )}
         </div>
       </div>
-    </Card>
+    </div>
   )
 }

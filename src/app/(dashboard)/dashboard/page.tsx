@@ -6,6 +6,14 @@ import { Button } from '@/components/ui/Button'
 import { DealCard } from '@/components/deals/DealCard'
 import { serializeDeal } from '@/lib/serialize'
 import type { DealParty, Document } from '@/types'
+import { Plus } from 'lucide-react'
+
+function getGreeting() {
+  const hour = new Date().getHours()
+  if (hour < 12) return 'Good morning'
+  if (hour < 17) return 'Good afternoon'
+  return 'Good evening'
+}
 
 export default async function DashboardPage() {
   const session = await auth()
@@ -58,52 +66,70 @@ export default async function DashboardPage() {
   const pendingSignatures = allDeals.filter((d) => d.status === 'signing')
   const totalParties = allDeals.reduce((acc, d) => acc + (d.parties?.length ?? 0), 0)
 
+  const name = session?.user?.name ?? session?.user?.email?.split('@')[0] ?? 'there'
+  const greeting = getGreeting()
+
   return (
     <div className="space-y-8">
+      {/* Greeting */}
       <div>
-        <h1 className="font-display text-2xl text-navy-600">Dashboard</h1>
-        <p className="text-navy-400 mt-1">Welcome back. Here&apos;s your deal overview.</p>
+        <h1 className="font-display text-2xl font-bold text-warm-900">
+          {greeting}, {name}
+        </h1>
+        <p className="text-warm-500 text-sm mt-1">Here&apos;s your deal overview</p>
       </div>
 
       {allDeals.length === 0 ? (
-        <div className="bg-cream-200 rounded-xl p-12 text-center">
-          <h2 className="font-display text-xl text-navy-600">No deals yet</h2>
-          <p className="text-navy-400 mt-2 max-w-md mx-auto">
-            Create your first deal room to invite parties, share documents, and collect signatures.
-          </p>
-          <Link href="/deals/new">
-            <Button className="mt-6">+ New Deal</Button>
-          </Link>
+        /* Empty state */
+        <div className="rounded-2xl border border-warm-200 bg-white p-12 text-center shadow-xs">
+          <div className="max-w-sm mx-auto">
+            <div className="w-16 h-16 mx-auto mb-4 rounded-2xl bg-coral-50 flex items-center justify-center">
+              <span className="text-3xl" aria-hidden>📄</span>
+            </div>
+            <h2 className="font-display text-xl font-bold text-warm-900">No deals yet</h2>
+            <p className="text-warm-500 text-sm mt-2">
+              Create your first deal room to invite parties, share documents, and collect signatures.
+            </p>
+            <Link href="/deals/new" className="inline-block mt-6">
+              <Button variant="primary" className="rounded-xl">
+                New Deal +
+              </Button>
+            </Link>
+          </div>
         </div>
       ) : (
         <>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-            <div className="bg-cream-200 rounded-xl p-4 border border-cream-300">
-              <p className="text-sm text-navy-400">Active Deals</p>
-              <p className="text-2xl font-display text-navy-600 mt-1">{activeDeals.length}</p>
+          {/* Stats */}
+          <div className="flex overflow-x-auto gap-3 pb-2 scrollbar-hide lg:grid lg:grid-cols-4 lg:overflow-visible lg:pb-0">
+            <div className="flex-shrink-0 w-[200px] lg:w-auto rounded-2xl border border-warm-200 bg-white p-4 shadow-xs">
+              <p className="text-warm-500 text-sm">Active Deals</p>
+              <p className="text-2xl font-display font-bold text-warm-900 mt-1">{activeDeals.length}</p>
             </div>
-            <div className="bg-cream-200 rounded-xl p-4 border border-cream-300">
-              <p className="text-sm text-navy-400">Closed This Month</p>
-              <p className="text-2xl font-display text-navy-600 mt-1">{completedThisMonth.length}</p>
+            <div className="flex-shrink-0 w-[200px] lg:w-auto rounded-2xl border border-warm-200 bg-white p-4 shadow-xs">
+              <p className="text-warm-500 text-sm">Closed This Month</p>
+              <p className="text-2xl font-display font-bold text-warm-900 mt-1">{completedThisMonth.length}</p>
             </div>
-            <div className="bg-cream-200 rounded-xl p-4 border border-cream-300">
-              <p className="text-sm text-navy-400">Pending Signatures</p>
-              <p className="text-2xl font-display text-navy-600 mt-1">{pendingSignatures.length}</p>
+            <div className="flex-shrink-0 w-[200px] lg:w-auto rounded-2xl border border-warm-200 bg-white p-4 shadow-xs">
+              <p className="text-warm-500 text-sm">Pending Signatures</p>
+              <p className="text-2xl font-display font-bold text-warm-900 mt-1">{pendingSignatures.length}</p>
             </div>
-            <div className="bg-cream-200 rounded-xl p-4 border border-cream-300">
-              <p className="text-sm text-navy-400">Total Parties</p>
-              <p className="text-2xl font-display text-navy-600 mt-1">{totalParties}</p>
+            <div className="flex-shrink-0 w-[200px] lg:w-auto rounded-2xl border border-warm-200 bg-white p-4 shadow-xs">
+              <p className="text-warm-500 text-sm">Total Parties</p>
+              <p className="text-2xl font-display font-bold text-warm-900 mt-1">{totalParties}</p>
             </div>
           </div>
 
+          {/* Recent Deals */}
           <div className="flex items-center justify-between">
-            <h2 className="font-display text-lg text-navy-600">Recent Deals</h2>
-            <Link href="/deals/new">
-              <Button>+ New Deal</Button>
+            <h2 className="font-display text-lg font-bold text-warm-900">Recent Deals</h2>
+            <Link href="/deals/new" className="hidden lg:block">
+              <Button variant="primary" className="rounded-xl">
+                New Deal +
+              </Button>
             </Link>
           </div>
 
-          <div className="grid gap-4">
+          <div className="space-y-4">
             {allDeals.slice(0, 5).map((deal) => (
               <DealCard
                 key={deal.id}
@@ -117,6 +143,15 @@ export default async function DashboardPage() {
           </div>
         </>
       )}
+
+      {/* Mobile FAB */}
+      <Link
+        href="/deals/new"
+        className="fixed bottom-20 right-4 lg:hidden z-50 flex items-center justify-center w-14 h-14 rounded-full bg-coral-500 text-white shadow-lg hover:bg-coral-600 active:scale-95 transition-all"
+        aria-label="New Deal"
+      >
+        <Plus className="w-6 h-6" />
+      </Link>
     </div>
-  );
+  )
 }

@@ -75,8 +75,8 @@ export function InvitePartyModal({ dealId, open, onClose, onSuccess }: InvitePar
     <Modal isOpen={open} onClose={handleClose} title="Invite Party">
       {inviteLink ? (
         <div className="space-y-4">
-          <p className="text-sm text-navy-600">Invitation sent. Share this link:</p>
-          <div className="rounded-lg bg-cream-100 p-3 text-sm text-navy-600 break-all">
+          <p className="text-sm text-warm-700">Invitation sent. Share this link:</p>
+          <div className="rounded-xl border border-warm-200 bg-warm-50 p-3 text-sm text-warm-800 break-all">
             {inviteLink}
           </div>
           <Button onClick={handleClose}>Done</Button>
@@ -105,11 +105,11 @@ export function InvitePartyModal({ dealId, open, onClose, onSuccess }: InvitePar
             placeholder="john@example.com"
           />
           <div>
-            <label className="mb-1 block text-sm font-medium text-navy-600">Role</label>
+            <label className="mb-1.5 block text-sm font-medium text-warm-800">Role</label>
             <select
               value={role}
               onChange={(e) => setRole(e.target.value as PartyRole)}
-              className="w-full rounded-lg border border-cream-300 bg-white px-3 py-2 text-navy-600 focus:border-gold-500 focus:outline-none focus:ring-2 focus:ring-gold-500/20"
+              className="w-full rounded-xl border border-warm-200 bg-white px-4 py-2 text-warm-800 focus:border-coral-400 focus:outline-none focus:ring-2 focus:ring-coral-500/20"
             >
               {ROLES.map((r) => (
                 <option key={r} value={r}>
@@ -119,25 +119,27 @@ export function InvitePartyModal({ dealId, open, onClose, onSuccess }: InvitePar
             </select>
           </div>
           <div>
-            <label className="mb-1 block text-sm font-medium text-navy-600">Send invite via</label>
+            <label className="mb-1.5 block text-sm font-medium text-warm-800">Send invite via</label>
             <div className="flex gap-4">
-              <label className="flex items-center gap-2">
+              <label className="flex items-center gap-2 cursor-pointer">
                 <input
                   type="radio"
                   name="channel"
                   checked={channel === 'whatsapp'}
                   onChange={() => setChannel('whatsapp')}
+                  className="accent-coral-500"
                 />
-                <span className="text-sm">WhatsApp</span>
+                <span className="text-sm text-warm-700">WhatsApp</span>
               </label>
-              <label className="flex items-center gap-2">
+              <label className="flex items-center gap-2 cursor-pointer">
                 <input
                   type="radio"
                   name="channel"
                   checked={channel === 'sms'}
                   onChange={() => setChannel('sms')}
+                  className="accent-coral-500"
                 />
-                <span className="text-sm">SMS</span>
+                <span className="text-sm text-warm-700">SMS</span>
               </label>
             </div>
           </div>

@@ -100,17 +100,23 @@ export function CreateDealWizard() {
           <div
             key={s}
             className={`flex items-center gap-2 ${
-              step >= s ? 'text-gold-600' : 'text-navy-400'
+              step >= s ? 'text-coral-600' : 'text-warm-400'
             }`}
           >
             <div
-              className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-medium ${
-                step > s ? 'bg-gold-500 text-white' : step === s ? 'bg-gold-100' : 'bg-cream-200'
+              className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-medium transition-colors ${
+                step > s ? 'bg-coral-500 text-white' : step === s ? 'bg-coral-100 text-coral-600' : 'bg-warm-200 text-warm-500'
               }`}
             >
               {step > s ? '✓' : s}
             </div>
-            {s < 3 && <div className="w-8 h-px bg-cream-300" />}
+            {s < 3 && (
+              <div
+                className={`w-8 h-0.5 ${
+                  step > s ? 'bg-coral-500' : 'bg-warm-200'
+                }`}
+              />
+            )}
           </div>
         ))}
       </div>
@@ -120,28 +126,28 @@ export function CreateDealWizard() {
           <Card
             className={`p-6 cursor-pointer border-2 transition-colors ${
               data.deal_type === 'rent'
-                ? 'border-gold-500 bg-gold-50'
-                : 'border-cream-200 hover:border-cream-300'
+                ? 'border-coral-500 bg-coral-50/50 shadow-xs'
+                : 'border-warm-200 hover:border-warm-300 bg-white'
             }`}
             onClick={() => update({ deal_type: 'rent' })}
           >
-            <Home className="h-12 w-12 text-gold-600 mb-3" />
-            <h3 className="font-display font-semibold text-navy-600">Rent</h3>
-            <p className="text-sm text-navy-400 mt-1">
+            <Home className="h-12 w-12 text-coral-500 mb-3" />
+            <h3 className="font-display font-semibold text-warm-900">Rent</h3>
+            <p className="text-sm text-warm-600 mt-1">
               Tenancy agreements, leases, and rental transactions
             </p>
           </Card>
           <Card
             className={`p-6 cursor-pointer border-2 transition-colors ${
               data.deal_type === 'sale'
-                ? 'border-gold-500 bg-gold-50'
-                : 'border-cream-200 hover:border-cream-300'
+                ? 'border-coral-500 bg-coral-50/50 shadow-xs'
+                : 'border-warm-200 hover:border-warm-300 bg-white'
             }`}
             onClick={() => update({ deal_type: 'sale' })}
           >
-            <Building2 className="h-12 w-12 text-gold-600 mb-3" />
-            <h3 className="font-display font-semibold text-navy-600">Sale</h3>
-            <p className="text-sm text-navy-400 mt-1">
+            <Building2 className="h-12 w-12 text-coral-500 mb-3" />
+            <h3 className="font-display font-semibold text-warm-900">Sale</h3>
+            <p className="text-sm text-warm-600 mt-1">
               Property purchase, offer letters, and sales agreements
             </p>
           </Card>
@@ -171,11 +177,11 @@ export function CreateDealWizard() {
             onChange={(e) => update({ property_type: e.target.value })}
           />
           <div>
-            <label className="block text-sm font-medium text-navy-600 mb-1">
+            <label className="block text-sm font-medium text-warm-800 mb-1">
               Description (optional)
             </label>
             <textarea
-              className="w-full px-3 py-2 border border-cream-300 rounded-lg focus:ring-2 focus:ring-gold-500 focus:border-gold-500"
+              className="w-full px-4 py-2 border border-warm-200 rounded-xl bg-white text-warm-900 placeholder:text-warm-400 focus:ring-2 focus:ring-coral-500/20 focus:border-coral-400 transition-colors"
               placeholder="Additional details..."
               rows={3}
               value={data.description ?? ''}
@@ -184,7 +190,7 @@ export function CreateDealWizard() {
           </div>
 
           {data.deal_type === 'rent' && (
-            <div className="grid grid-cols-2 gap-4 pt-4 border-t border-cream-200">
+            <div className="grid grid-cols-2 gap-4 pt-4 border-t border-warm-200">
               <Input
                 label="Rent amount (₦)"
                 type="number"
@@ -195,11 +201,11 @@ export function CreateDealWizard() {
                 }
               />
               <div>
-                <label className="block text-sm font-medium text-navy-600 mb-1">
+                <label className="block text-sm font-medium text-warm-800 mb-1">
                   Rent period
                 </label>
                 <select
-                  className="w-full px-3 py-2 border border-cream-300 rounded-lg focus:ring-2 focus:ring-gold-500"
+                  className="w-full px-4 py-2 border border-warm-200 rounded-xl bg-white text-warm-800 focus:ring-2 focus:ring-coral-500/20 focus:border-coral-400"
                   value={data.rent_period ?? 'monthly'}
                   onChange={(e) => update({ rent_period: e.target.value })}
                 >
@@ -260,7 +266,7 @@ export function CreateDealWizard() {
           )}
 
           {data.deal_type === 'sale' && (
-            <div className="pt-4 border-t border-cream-200">
+            <div className="pt-4 border-t border-warm-200">
               <Input
                 label="Sale price (₦)"
                 type="number"
@@ -279,33 +285,33 @@ export function CreateDealWizard() {
 
       {step === 3 && (
         <Card className="p-6">
-          <FileCheck className="h-12 w-12 text-gold-600 mb-4" />
-          <h3 className="font-display font-semibold text-navy-600">Summary</h3>
+          <FileCheck className="h-12 w-12 text-coral-500 mb-4" />
+          <h3 className="font-display font-semibold text-warm-900">Summary</h3>
           <dl className="mt-4 space-y-2 text-sm">
             <div>
-              <dt className="text-navy-400">Deal type</dt>
-              <dd className="font-medium text-navy-600 capitalize">{data.deal_type}</dd>
+              <dt className="text-warm-500">Deal type</dt>
+              <dd className="font-medium text-warm-800 capitalize">{data.deal_type}</dd>
             </div>
             <div>
-              <dt className="text-navy-400">Title</dt>
-              <dd className="font-medium text-navy-600">{data.title}</dd>
+              <dt className="text-warm-500">Title</dt>
+              <dd className="font-medium text-warm-800">{data.title}</dd>
             </div>
             <div>
-              <dt className="text-navy-400">Property address</dt>
-              <dd className="font-medium text-navy-600">{data.property_address}</dd>
+              <dt className="text-warm-500">Property address</dt>
+              <dd className="font-medium text-warm-800">{data.property_address}</dd>
             </div>
             {data.deal_type === 'rent' && data.rent_amount != null && data.rent_amount > 0 && (
               <div>
-                <dt className="text-navy-400">Rent</dt>
-                <dd className="font-medium text-navy-600">
+                <dt className="text-warm-500">Rent</dt>
+                <dd className="font-medium text-warm-800">
                   ₦{Number(data.rent_amount).toLocaleString()}/{data.rent_period}
                 </dd>
               </div>
             )}
             {data.deal_type === 'sale' && data.sale_price != null && data.sale_price > 0 && (
               <div>
-                <dt className="text-navy-400">Sale price</dt>
-                <dd className="font-medium text-navy-600">
+                <dt className="text-warm-500">Sale price</dt>
+                <dd className="font-medium text-warm-800">
                   ₦{Number(data.sale_price).toLocaleString()}
                 </dd>
               </div>
@@ -315,7 +321,7 @@ export function CreateDealWizard() {
       )}
 
       {error && (
-        <div className="p-3 rounded-lg bg-red-50 text-red-600 text-sm">{error}</div>
+        <div className="p-3 rounded-xl bg-red-50 text-red-600 text-sm">{error}</div>
       )}
 
       <div className="flex justify-between">

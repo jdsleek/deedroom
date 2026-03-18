@@ -3,7 +3,6 @@
 import { useState, useCallback, useEffect, useRef } from 'react'
 import { Modal } from '@/components/ui/Modal'
 import { Button } from '@/components/ui/Button'
-import { cn } from '@/lib/utils'
 
 interface OtpModalProps {
   isOpen: boolean
@@ -129,10 +128,10 @@ export function OtpModal({
   return (
     <Modal isOpen={isOpen} onClose={onClose} title="Verify with OTP">
       <div className="space-y-6">
-        <p className="text-navy-400 text-sm">
+        <p className="text-sm text-warm-600">
           We sent a 6-digit code to your phone via {channel === 'whatsapp' ? 'WhatsApp' : 'SMS'}.
         </p>
-        <div className="flex gap-2 justify-center" onPaste={handlePaste}>
+        <div className="flex justify-center gap-2" onPaste={handlePaste}>
           {digits.map((digit, i) => (
             <input
               key={i}
@@ -143,12 +142,12 @@ export function OtpModal({
               value={digit}
               onChange={(e) => handleDigitChange(i, e.target.value)}
               onKeyDown={(e) => handleKeyDown(i, e)}
-              className="w-12 h-14 text-center text-xl font-semibold border-2 border-cream-300 rounded-lg focus:border-gold-500 focus:ring-2 focus:ring-gold-200 outline-none"
+              className="h-14 w-12 rounded-xl border-2 border-warm-200 text-center text-xl font-semibold text-warm-900 transition-colors focus:border-coral-400 focus:outline-none focus:ring-2 focus:ring-coral-500/20"
             />
           ))}
         </div>
-        {error && <p className="text-red-600 text-sm text-center">{error}</p>}
-        <div className="text-center text-sm text-navy-400">
+        {error && <p className="text-center text-sm text-red-600">{error}</p>}
+        <div className="text-center text-sm text-warm-500">
           Code expires in {minutes}:{seconds.toString().padStart(2, '0')}
         </div>
         <div className="flex flex-col gap-3">
@@ -159,10 +158,7 @@ export function OtpModal({
             type="button"
             onClick={handleResend}
             disabled={resendCooldown > 0 || loading}
-            className={cn(
-              'text-sm',
-              resendCooldown > 0 ? 'text-navy-300' : 'text-gold-600 hover:text-gold-700'
-            )}
+            className={`text-sm ${resendCooldown > 0 ? 'text-warm-400' : 'text-coral-500 hover:text-coral-600 font-medium'}`}
           >
             {resendCooldown > 0
               ? `Resend code in ${resendCooldown}s`

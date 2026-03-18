@@ -25,7 +25,7 @@ export async function applyDraftWatermark(
 
   for (const page of pages) {
     const { width, height } = page.getSize();
-    page.drawText("DRAFT — DeedRoom", {
+    page.drawText("DRAFT — SignNest", {
       x: width / 2 - 120,
       y: height / 2,
       size: 48,
@@ -62,7 +62,7 @@ export async function sealExecutedPdf(params: SealParams): Promise<Uint8Array> {
   let y = height - 80;
 
   // Title
-  certPage.drawText("DeedRoom Executed Agreement Certificate", {
+  certPage.drawText("SignNest Executed Agreement Certificate", {
     x: 50,
     y,
     size: 18,
@@ -155,7 +155,7 @@ export async function sealExecutedPdf(params: SealParams): Promise<Uint8Array> {
 
   y -= 40;
   certPage.drawText(
-    `Sealed: ${format(sealedAt, "dd MMM yyyy HH:mm:ss")} UTC | DeedRoom`,
+    `Sealed: ${format(sealedAt, "dd MMM yyyy HH:mm:ss")} UTC | SignNest`,
     {
       x: 50,
       y,
@@ -186,7 +186,7 @@ export async function generateEvidencePdf(params: {
   const { width, height } = page.getSize();
   let y = height - 60;
 
-  page.drawText("DeedRoom Evidence Pack", {
+  page.drawText("SignNest Evidence Pack", {
     x: 50,
     y,
     size: 20,

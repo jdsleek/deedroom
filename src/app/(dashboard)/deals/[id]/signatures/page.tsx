@@ -22,7 +22,7 @@ export default function DealSignaturesPage() {
   if (loading || !deal) {
     return (
       <div className="flex min-h-[200px] items-center justify-center">
-        <div className="h-8 w-8 animate-spin rounded-full border-2 border-gold-500 border-t-transparent" />
+        <div className="h-8 w-8 animate-spin rounded-full border-2 border-coral-500 border-t-transparent" />
       </div>
     )
   }
@@ -33,12 +33,12 @@ export default function DealSignaturesPage() {
 
   return (
     <div className="space-y-6">
-      <p className="text-navy-600">
+      <p className="text-warm-600">
         {documents.length === 0 ? 'Upload documents first to collect signatures.' : `Signing status for ${documents.length} document(s).`}
       </p>
       {documents.map((doc) => (
-        <div key={doc.id} className="rounded-lg border border-cream-200 p-4 bg-cream-50">
-          <h3 className="font-display font-semibold text-navy-600 mb-3">{doc.name}</h3>
+        <div key={doc.id} className="rounded-2xl border border-warm-200 bg-white p-6 shadow-xs">
+          <h3 className="font-display font-semibold text-warm-800 mb-3">{doc.name}</h3>
           <SignatureStatus
             parties={parties}
             signatureRequests={signatureRequests}

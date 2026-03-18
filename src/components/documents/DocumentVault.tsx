@@ -100,50 +100,55 @@ export function DocumentVault({ dealId, documents, canManage = true, onRefresh }
   }
 
   return (
-    <div className="flex gap-6">
-      <aside className="w-48 shrink-0">
-        <p className="text-sm font-medium text-navy-700 mb-2">Categories</p>
-        <nav className="space-y-1">
+    <div className="space-y-6">
+      {/* Category pills + count + upload */}
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+        <div className="flex items-center gap-3 overflow-x-auto scrollbar-hide pb-1">
           {CATEGORIES.map((c) => (
             <button
               key={c}
               onClick={() => setCategory(c)}
-              className={`block w-full text-left px-3 py-2 rounded-lg text-sm transition-colors ${
-                category === c ? 'bg-gold-100 text-gold-800 font-medium' : 'text-navy-600 hover:bg-cream-200'
+              className={`shrink-0 rounded-full px-4 py-2 text-sm font-medium transition-colors ${
+                category === c
+                  ? 'bg-coral-500 text-white'
+                  : 'border border-warm-200 bg-white text-warm-600 hover:border-warm-300 hover:text-warm-800'
               }`}
             >
               {CATEGORY_LABELS[c] ?? c}
             </button>
           ))}
-        </nav>
-      </aside>
-      <div className="flex-1 min-w-0">
-        <div className="flex items-center justify-between mb-4">
-          <p className="text-navy-600">{filtered.length} document{filtered.length !== 1 ? 's' : ''}</p>
+        </div>
+        <div className="flex items-center gap-3 shrink-0">
+          <p className="text-sm text-warm-600">
+            {filtered.length} document{filtered.length !== 1 ? 's' : ''}
+          </p>
           {canManage && (
             <Button onClick={() => setUploadModal(true)}>
               Upload Document
             </Button>
           )}
         </div>
-        <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-          {filtered.map((doc) => (
-            <DocumentCard
-              key={doc.id}
-              doc={doc}
-              onView={() => handleView(doc)}
-              onDownload={() => handleDownload(doc)}
-              onDelete={() => handleDelete(doc)}
-              isCreator={canManage}
-            />
-          ))}
-        </div>
-        {filtered.length === 0 && (
-          <div className="text-center py-12 text-navy-400">
-            {category === 'all' ? 'No documents yet' : `No ${CATEGORY_LABELS[category]} documents`}
-          </div>
-        )}
       </div>
+
+      {/* Document grid */}
+      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+        {filtered.map((doc) => (
+          <DocumentCard
+            key={doc.id}
+            doc={doc}
+            onView={() => handleView(doc)}
+            onDownload={() => handleDownload(doc)}
+            onDelete={() => handleDelete(doc)}
+            isCreator={canManage}
+          />
+        ))}
+      </div>
+
+      {filtered.length === 0 && (
+        <div className="rounded-2xl border-2 border-dashed border-warm-200 bg-warm-50 py-16 text-center text-warm-500">
+          {category === 'all' ? 'No documents yet' : `No ${CATEGORY_LABELS[category]} documents`}
+        </div>
+      )}
 
       <Modal isOpen={uploadModal} onClose={() => !uploading && setUploadModal(false)} title="Upload Document">
         {uploading ? (

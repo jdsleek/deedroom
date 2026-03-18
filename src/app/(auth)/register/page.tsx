@@ -5,7 +5,6 @@ import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
-import { Card } from '@/components/ui/Card';
 import { Spinner } from '@/components/ui/Spinner';
 import { ToastContainer, useToast } from '@/components/ui/Toast';
 
@@ -42,12 +41,19 @@ export default function RegisterPage() {
 
   return (
     <>
-      <div className="text-center mb-8">
-        <h1 className="font-display text-3xl text-navy-600">DeedRoom</h1>
-        <p className="text-navy-400 mt-1">Create your account</p>
+      <div className="text-center mb-10">
+        <div className="inline-flex items-center gap-3 mb-6">
+          <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-coral-500 text-white shadow-lg shadow-[0_8px_24px_rgba(255,90,60,0.22)]">
+            <span className="font-display text-2xl font-bold">S</span>
+          </div>
+          <span className="font-display text-2xl font-bold text-warm-900">SignNest</span>
+        </div>
+        <p className="font-sans text-warm-600 text-base">
+          Close deals. Collect signatures. Build trust.
+        </p>
       </div>
-      <Card className="p-6">
-        <form onSubmit={handleSubmit} className="space-y-4">
+      <div className="rounded-2xl border border-warm-200 bg-white p-6 sm:p-8 shadow-sm">
+        <form onSubmit={handleSubmit} className="space-y-5">
           <Input
             label="Full Name"
             type="text"
@@ -80,17 +86,17 @@ export default function RegisterPage() {
             required
             minLength={6}
           />
-          <Button type="submit" className="w-full" disabled={loading}>
+          <Button type="submit" className="w-full h-12 text-base" disabled={loading}>
             {loading ? <Spinner className="w-5 h-5" /> : 'Create Account'}
           </Button>
         </form>
-        <p className="text-sm text-navy-400 mt-4 text-center">
+        <p className="font-sans text-sm text-warm-600 mt-6 text-center">
           Already have an account?{' '}
-          <Link href="/login" className="text-gold-500 hover:underline">
+          <Link href="/login" className="font-semibold text-coral-500 hover:text-coral-600 transition-colors">
             Sign in
           </Link>
         </p>
-      </Card>
+      </div>
       <ToastContainer toasts={toasts} onClose={removeToast} />
     </>
   );

@@ -30,41 +30,44 @@ export default function DealRoomLayout({ children }: { children: React.ReactNode
     { href: `${base}/audit`, label: 'Audit Trail' },
   ]
 
-  const activeTab = pathname === base ? base : pathname.split('/').slice(0, 4).join('/')
+  const isActive = (tabHref: string) =>
+    pathname === tabHref || (tabHref !== base && pathname.startsWith(tabHref))
 
   if (loading || !deal) {
     return (
       <div className="flex min-h-[200px] items-center justify-center">
-        <div className="h-8 w-8 animate-spin rounded-full border-2 border-gold-500 border-t-transparent" />
+        <div className="h-8 w-8 animate-spin rounded-full border-2 border-coral-500 border-t-transparent" />
       </div>
     )
   }
 
   return (
     <div className="space-y-6">
-      <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
-        <div>
-          <h1 className="font-display text-2xl font-semibold text-navy-600">{deal.title}</h1>
-          <p className="mt-1 text-navy-400">{deal.property_address}</p>
-          <div className="mt-2 flex items-center gap-2">
-            <DealStatusBadge status={deal.status} />
-            <span className="rounded-full bg-cream-200 px-2 py-0.5 text-xs font-medium text-navy-500">
-              {deal.deal_type}
-            </span>
+      <div className="rounded-2xl border border-warm-200 bg-white p-6 shadow-xs">
+        <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+          <div>
+            <h1 className="font-display text-xl font-bold text-warm-900">{deal.title}</h1>
+            <p className="mt-1 text-warm-600">{deal.property_address}</p>
+            <div className="mt-2 flex items-center gap-2">
+              <DealStatusBadge status={deal.status} />
+              <span className="rounded-full border border-warm-200 bg-warm-50 px-3 py-1 text-xs font-medium text-warm-600">
+                {deal.deal_type}
+              </span>
+            </div>
           </div>
+          <DealTimeline status={deal.status} completedAt={deal.completed_at} />
         </div>
-        <DealTimeline status={deal.status} completedAt={deal.completed_at} />
       </div>
 
-      <nav className="flex gap-2 overflow-x-auto border-b border-cream-300 pb-2">
+      <nav className="flex gap-2 overflow-x-auto scrollbar-hide pb-2">
         {tabs.map((tab) => (
           <Link
             key={tab.href}
             href={tab.href}
-            className={`whitespace-nowrap px-4 py-2 text-sm font-medium transition-colors ${
-              pathname === tab.href || (tab.href !== base && pathname.startsWith(tab.href))
-                ? 'border-b-2 border-gold-500 text-gold-600'
-                : 'text-navy-400 hover:text-navy-600'
+            className={`whitespace-nowrap rounded-full px-4 py-2 text-sm font-medium transition-colors ${
+              isActive(tab.href)
+                ? 'bg-coral-500 text-white'
+                : 'border border-warm-200 bg-white text-warm-500 hover:border-warm-300 hover:text-warm-700'
             }`}
           >
             {tab.label}

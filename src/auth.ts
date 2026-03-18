@@ -60,7 +60,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
           });
         }
       } catch (e) {
-        console.error("[DeedRoom] Profile auto-create failed:", e);
+        console.error("[SignNest] Profile auto-create failed:", e);
       }
       return true;
     },

@@ -1,4 +1,4 @@
-# DeedRoom
+# SignNest
 
 Secure transaction room platform for Nigerian real estate deals. Create deal rooms, invite parties, share documents, collect eSignatures via OTP, and produce sealed executed PDFs.
 
@@ -30,13 +30,13 @@ npm install
 docker compose up -d
 ```
 
-**Option B — Homebrew** (macOS): `brew install postgresql@16 && brew services start postgresql@16`, then create DB: `createdb deedroom`
+**Option B — Homebrew** (macOS): `brew install postgresql@16 && brew services start postgresql@16`, then create DB: `createdb signnest`
 
 Then:
 ```bash
 cp .env.example .env.local
-# Edit .env.local: DATABASE_URL="postgresql://postgres:postgres@localhost:5432/deedroom"
-# (Use your macOS username if not 'postgres' for Homebrew, e.g. postgresql://$(whoami)@localhost:5432/deedroom)
+# Edit .env.local: DATABASE_URL="postgresql://postgres:postgres@localhost:5432/signnest"
+# (Use your macOS username if not 'postgres' for Homebrew, e.g. postgresql://$(whoami)@localhost:5432/signnest)
 ```
 
 **Production (Railway)**:
@@ -61,7 +61,7 @@ NEXT_PUBLIC_APP_URL=http://localhost:3000
 
 # Optional (for OTP/invites)
 TERMII_API_KEY=...
-TERMII_SENDER_ID=DeedRoom
+TERMII_SENDER_ID=SignNest
 ```
 
 Generate `NEXTAUTH_SECRET`:
@@ -88,12 +88,12 @@ Open [http://localhost:3000](http://localhost:3000). Register a new account and 
 ## Deploy to Railway
 
 1. Connect your repo to Railway
-2. **Use a dedicated PostgreSQL** — DeedRoom must have its own database. Do not share with other apps (sharing causes schema conflicts).
+2. **Use a dedicated PostgreSQL** — SignNest must have its own database. Do not share with other apps (sharing causes schema conflicts).
 3. Add PostgreSQL plugin, copy `DATABASE_URL` to your service
 4. **Required environment variables** (Settings → Variables):
-   - `DATABASE_URL` — from your DeedRoom PostgreSQL (dedicated instance)
+   - `DATABASE_URL` — from your SignNest PostgreSQL (dedicated instance)
    - `AUTH_SECRET` or `NEXTAUTH_SECRET` — `openssl rand -base64 32`
-   - `NEXTAUTH_URL` — your app URL (e.g. `https://deedroom.up.railway.app`)
+   - `NEXTAUTH_URL` — your app URL (e.g. `https://signnest.up.railway.app`)
 5. **One-time schema setup**: Run `npx prisma db push` locally with `DATABASE_URL` pointing at Railway (or in Railway CLI/shell), then deploy.
 6. For file storage, mount a volume at `./uploads` or use S3
 
@@ -114,14 +114,14 @@ prisma/
 1. Copy `.env.example` → `.env.local` and set `DATABASE_URL` for local Postgres
 2. Start Postgres: `docker compose up -d`
 3. Create tables: `npm run db:push`
-4. (Optional) Seed test user: `npm run db:seed` → login with `test@deedroom.local` / `password123`
+4. (Optional) Seed test user: `npm run db:seed` → login with `test@signnest.local` / `password123`
 5. Run: `npm run dev`
 
 Keep `.env.local` for local use only; never commit it. Production uses Railway env vars.
 
 ### Local login troubleshooting
 
-If `test@deedroom.local` / `password123` doesn't work:
+If `test@signnest.local` / `password123` doesn't work:
 
 1. **Run the seed** — `npm run db:seed` creates the test user
 2. **Check env** — `.env.local` must have `AUTH_SECRET` or `NEXTAUTH_SECRET` (and `NEXTAUTH_URL=http://localhost:3000`)

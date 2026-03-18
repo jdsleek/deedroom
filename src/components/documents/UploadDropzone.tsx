@@ -3,7 +3,7 @@
 import { useCallback } from 'react'
 import { useDropzone } from 'react-dropzone'
 import { cn } from '@/lib/utils'
-import { Upload, FileText, X } from 'lucide-react'
+import { Upload, FileText } from 'lucide-react'
 import type { DocCategory } from '@/types'
 
 const ACCEPTED_TYPES = {
@@ -72,27 +72,27 @@ export function UploadDropzone({
       <div
         {...getRootProps()}
         className={cn(
-          'border-2 border-dashed rounded-xl p-8 text-center cursor-pointer transition-colors',
-          isDragActive ? 'border-gold-400 bg-gold-50' : 'border-navy-200 bg-cream-100 hover:border-navy-300',
+          'rounded-2xl border-2 border-dashed p-8 text-center transition-colors cursor-pointer',
+          isDragActive ? 'border-coral-400 bg-coral-50' : 'border-warm-300 bg-warm-50 hover:border-warm-400',
           disabled && 'opacity-50 cursor-not-allowed'
         )}
       >
         <input {...getInputProps()} />
-        <Upload className="mx-auto size-10 text-navy-400 mb-2" />
-        <p className="text-navy-600 font-medium">
+        <Upload className="mx-auto size-10 text-coral-500 mb-2" />
+        <p className="font-medium text-warm-700">
           {isDragActive ? 'Drop your file here' : 'Drag & drop or click to upload'}
         </p>
-        <p className="text-sm text-navy-400 mt-1">
+        <p className="mt-1 text-sm text-warm-500">
           PDF, DOCX, JPG, PNG, WEBP — max 20MB
         </p>
       </div>
 
       {selectedFile && (
-        <div className="flex items-center gap-3 p-3 bg-cream-200 rounded-lg">
-          <FileText className="size-5 text-navy-600 shrink-0" />
-          <div className="flex-1 min-w-0">
-            <p className="font-medium text-navy-800 truncate">{selectedFile.name}</p>
-            <p className="text-sm text-navy-400">
+        <div className="flex items-center gap-3 rounded-xl border border-warm-200 bg-warm-50 p-3">
+          <FileText className="size-5 shrink-0 text-warm-600" />
+          <div className="min-w-0 flex-1">
+            <p className="font-medium text-warm-900 truncate">{selectedFile.name}</p>
+            <p className="text-sm text-warm-500">
               {(selectedFile.size / 1024).toFixed(1)} KB
             </p>
           </div>
@@ -101,11 +101,11 @@ export function UploadDropzone({
 
       <div className="grid gap-4 sm:grid-cols-3">
         <div>
-          <label className="block text-sm font-medium text-navy-700 mb-1">Category</label>
+          <label className="mb-1.5 block text-sm font-medium text-warm-700">Category</label>
           <select
             value={config.category}
             onChange={(e) => onConfigChange({ ...config, category: e.target.value as DocCategory })}
-            className="w-full rounded-lg border border-navy-200 bg-white px-3 py-2 text-navy-800 focus:border-gold-500 focus:ring-1 focus:ring-gold-500"
+            className="w-full rounded-xl border border-warm-200 bg-white px-3 py-2.5 text-warm-800 transition-colors focus:border-coral-400 focus:outline-none focus:ring-2 focus:ring-coral-500/20"
           >
             {DOC_CATEGORIES.map((c) => (
               <option key={c.value} value={c.value}>{c.label}</option>
@@ -113,25 +113,25 @@ export function UploadDropzone({
           </select>
         </div>
         <div>
-          <label className="block text-sm font-medium text-navy-700 mb-1">Permission</label>
+          <label className="mb-1.5 block text-sm font-medium text-warm-700">Permission</label>
           <select
             value={config.permission}
             onChange={(e) => onConfigChange({ ...config, permission: e.target.value as 'view_only' | 'download' })}
-            className="w-full rounded-lg border border-navy-200 bg-white px-3 py-2 text-navy-800 focus:border-gold-500 focus:ring-1 focus:ring-gold-500"
+            className="w-full rounded-xl border border-warm-200 bg-white px-3 py-2.5 text-warm-800 transition-colors focus:border-coral-400 focus:outline-none focus:ring-2 focus:ring-coral-500/20"
           >
             <option value="view_only">View only</option>
             <option value="download">Download</option>
           </select>
         </div>
         <div className="flex items-end">
-          <label className="flex items-center gap-2 cursor-pointer">
+          <label className="flex cursor-pointer items-center gap-2">
             <input
               type="checkbox"
               checked={config.watermark}
               onChange={(e) => onConfigChange({ ...config, watermark: e.target.checked })}
-              className="rounded border-navy-300 text-gold-600 focus:ring-gold-500"
+              className="rounded border-warm-300 text-coral-500 focus:ring-coral-500"
             />
-            <span className="text-sm font-medium text-navy-700">Apply DRAFT watermark</span>
+            <span className="text-sm font-medium text-warm-700">Apply DRAFT watermark</span>
           </label>
         </div>
       </div>

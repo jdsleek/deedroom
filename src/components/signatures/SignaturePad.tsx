@@ -92,7 +92,7 @@ export function SignaturePad({ onSave, savedData, className }: SignaturePadProps
 
   return (
     <div className={cn('flex flex-col gap-3', className)}>
-      <div className="relative border-2 border-cream-300 rounded-lg overflow-hidden bg-cream-50">
+      <div className="relative overflow-hidden rounded-2xl border-2 border-warm-200 bg-white">
         <canvas
           ref={canvasRef}
           width={500}
@@ -108,11 +108,11 @@ export function SignaturePad({ onSave, savedData, className }: SignaturePadProps
           onTouchEnd={stopDrawing}
         />
       </div>
-      <div className="flex gap-2">
+      <div className="flex gap-3">
         <button
           type="button"
           onClick={handleClear}
-          className="text-sm text-navy-400 hover:text-navy-600"
+          className="rounded-xl border border-warm-200 px-4 py-2 text-sm font-medium text-warm-600 transition-colors hover:bg-warm-50 hover:border-warm-300"
         >
           Clear
         </button>
@@ -120,7 +120,7 @@ export function SignaturePad({ onSave, savedData, className }: SignaturePadProps
           type="button"
           onClick={handleSave}
           disabled={!hasSignature}
-          className="text-sm text-gold-600 hover:text-gold-700 font-medium disabled:opacity-50"
+          className="rounded-xl bg-coral-500 px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-coral-600 disabled:opacity-50 disabled:cursor-not-allowed"
         >
           Use This Signature
         </button>

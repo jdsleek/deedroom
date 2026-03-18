@@ -1,6 +1,5 @@
 'use client'
 
-import { Badge } from '@/components/ui/Badge'
 import { format } from 'date-fns'
 import type { DealParty, SignatureRequest } from '@/types'
 
@@ -30,19 +29,23 @@ export function SignatureStatus({ parties, signatureRequests, documentId }: Sign
         return (
           <div
             key={sr.id}
-            className="flex items-center justify-between py-2 border-b border-cream-200 last:border-0"
+            className="flex items-center justify-between border-b border-warm-200 py-2 last:border-0"
           >
-            <span className="font-medium text-navy-700">{party.invite_name}</span>
+            <span className="font-medium text-warm-800">{party.invite_name}</span>
             <div className="flex items-center gap-2">
               {signed ? (
                 <>
-                  <Badge variant="success">Signed</Badge>
-                  <span className="text-xs text-navy-400">
+                  <span className="rounded-full bg-teal-50 px-2.5 py-0.5 text-xs font-semibold text-teal-700">
+                    Signed
+                  </span>
+                  <span className="text-xs text-warm-500">
                     {sr.signed_at && format(new Date(sr.signed_at), 'MMM d, yyyy HH:mm')}
                   </span>
                 </>
               ) : (
-                <Badge variant="secondary">Pending</Badge>
+                <span className="rounded-full bg-warm-100 px-2.5 py-0.5 text-xs font-semibold text-warm-600">
+                  Pending
+                </span>
               )}
             </div>
           </div>

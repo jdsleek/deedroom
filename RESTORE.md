@@ -12,12 +12,12 @@ If `prisma db push` (or similar) was run against a **shared** Postgres instance 
 6. Wait for Railway to restore. The service may redeploy.
 7. After restore, your old tables and data (Customer, Dispatch, Product, Sale, etc.) should be back.
 
-## 2. DeedRoom Schema on Restored DB
+## 2. SignNest Schema on Restored DB
 
-If you share this DB with DeedRoom and want both DeedRoom tables and the other app tables:
+If you share this DB with SignNest and want both SignNest tables and the other app tables:
 
-- **Option A**: Create a **separate** Postgres for DeedRoom (recommended). Use the restored DB for the other apps only.
-- **Option B**: If you must share: After restore, run `prisma db push` **only** against a copy of the schema that includes **both** DeedRoom tables **and** the other app tables. Do not run the DeedRoom-only schema — it would drop the restored tables again.
+- **Option A**: Create a **separate** Postgres for SignNest (recommended). Use the restored DB for the other apps only.
+- **Option B**: If you must share: After restore, run `prisma db push` **only** against a copy of the schema that includes **both** SignNest tables **and** the other app tables. Do not run the SignNest-only schema — it would drop the restored tables again.
 
 ## 3. API Token (Optional)
 

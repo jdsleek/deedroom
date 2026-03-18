@@ -1,4 +1,4 @@
--- DeedRoom Database Schema
+-- SignNest Database Schema
 -- Run in Supabase SQL Editor in order
 
 -- EXTENSIONS

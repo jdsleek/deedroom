@@ -4,7 +4,6 @@ import { useState } from 'react'
 import type { AuditLog } from '@/types'
 import { Card } from '@/components/ui/Card'
 import { Button } from '@/components/ui/Button'
-import { Badge } from '@/components/ui/Badge'
 import { formatDistanceToNow } from 'date-fns'
 import { cn } from '@/lib/utils'
 
@@ -92,18 +91,18 @@ export function AuditTrail({ dealId, logs, onExportEvidence, loading }: AuditTra
 
       <Card>
         {loading ? (
-          <div className="flex items-center justify-center py-12">
-            <div className="h-8 w-8 animate-spin rounded-full border-2 border-navy-600 border-t-transparent" />
+          <div className="flex justify-center py-12">
+            <div className="h-8 w-8 animate-spin rounded-full border-2 border-coral-500 border-t-transparent" />
           </div>
         ) : filteredLogs.length === 0 ? (
-          <p className="py-12 text-center text-navy-400">No audit events yet</p>
+          <p className="py-12 text-center text-warm-500">No audit events yet</p>
         ) : (
           <div className="space-y-0">
             {filteredLogs.map((log, idx) => (
               <div
                 key={log.id}
                 className={cn(
-                  'flex items-start gap-4 border-navy-100 py-4',
+                  'flex items-start gap-4 border-warm-100 py-4',
                   idx < filteredLogs.length - 1 ? 'border-b' : ''
                 )}
               >
@@ -111,17 +110,17 @@ export function AuditTrail({ dealId, logs, onExportEvidence, loading }: AuditTra
                   {AUDIT_ICONS[log.action] ?? '•'}
                 </span>
                 <div className="min-w-0 flex-1">
-                  <p className="font-sans font-medium text-navy-900">
+                  <p className="font-sans font-medium text-warm-900">
                     {AUDIT_ACTION_LABELS[log.action] ?? log.action}
                   </p>
-                  <p className="mt-1 text-sm text-navy-500">
+                  <p className="mt-1 text-sm text-warm-600">
                     {log.actor_name ?? log.actor_phone ?? 'System'}
                     {log.ip_address && (
-                      <span className="ml-2 text-navy-400">• {log.ip_address}</span>
+                      <span className="ml-2 text-warm-500">• {log.ip_address}</span>
                     )}
                   </p>
                 </div>
-                <span className="shrink-0 text-sm text-navy-400">
+                <span className="shrink-0 text-sm text-warm-500">
                   {formatDistanceToNow(new Date(log.created_at), { addSuffix: true })}
                 </span>
               </div>

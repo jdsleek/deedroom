@@ -1,4 +1,4 @@
-// DeedRoom - Railway Postgres + NextAuth
+// SignNest - Railway Postgres + NextAuth
 generator client {
   provider = "prisma-client-js"
 }
@@ -54,7 +54,7 @@ model VerificationToken {
   @@id([identifier, token])
 }
 
-// DeedRoom models
+// SignNest models
 model Profile {
   id           String   @id
   fullName     String   @map("full_name")

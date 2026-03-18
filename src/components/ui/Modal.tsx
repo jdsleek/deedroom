@@ -18,9 +18,7 @@ export function Modal({ isOpen, onClose, title, children, className }: ModalProp
     } else {
       document.body.style.overflow = '';
     }
-    return () => {
-      document.body.style.overflow = '';
-    };
+    return () => { document.body.style.overflow = ''; };
   }, [isOpen]);
 
   useEffect(() => {
@@ -34,9 +32,9 @@ export function Modal({ isOpen, onClose, title, children, className }: ModalProp
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center">
+    <div className="fixed inset-0 z-50 flex items-end lg:items-center justify-center">
       <div
-        className="absolute inset-0 bg-navy-900/50 backdrop-blur-sm"
+        className="absolute inset-0 bg-warm-900/30 backdrop-blur-sm animate-fade-in"
         onClick={onClose}
         aria-hidden="true"
       />
@@ -45,13 +43,19 @@ export function Modal({ isOpen, onClose, title, children, className }: ModalProp
         aria-modal="true"
         aria-labelledby={title ? 'modal-title' : undefined}
         className={cn(
-          'relative z-10 w-full max-w-lg animate-fade-in rounded-xl border border-cream-300 bg-cream-50 p-6 shadow-modal',
+          'relative z-10 w-full lg:max-w-lg',
+          'bg-white shadow-xl',
+          'rounded-t-3xl lg:rounded-2xl',
+          'animate-sheet-up lg:animate-scale-in',
+          'max-h-[90vh] overflow-y-auto',
+          'p-6',
           className
         )}
         onClick={(e) => e.stopPropagation()}
       >
+        <div className="mx-auto mb-4 h-1 w-10 rounded-full bg-warm-300 lg:hidden" />
         {title && (
-          <h2 id="modal-title" className="font-display mb-4 text-xl font-semibold text-navy-600">
+          <h2 id="modal-title" className="font-display mb-4 text-xl font-bold text-warm-900">
             {title}
           </h2>
         )}

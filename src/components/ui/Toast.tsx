@@ -22,28 +22,23 @@ interface ToastListProps {
 }
 
 function ToastSingle({ message, type = 'info', onClose, className }: ToastProps) {
-  const bgColor =
-    type === 'success'
-      ? 'bg-emerald-50 text-emerald-700 border-emerald-200'
-      : type === 'error'
-        ? 'bg-red-50 text-red-700 border-red-200'
-        : 'bg-blue-50 text-blue-700 border-blue-200'
-
   return (
     <div
       className={cn(
-        'fixed bottom-6 right-6 z-50 px-4 py-3 rounded-lg border shadow-raised flex items-center gap-3',
-        bgColor,
+        'px-4 py-3 rounded-2xl shadow-lg flex items-center gap-3 animate-slide-down min-w-[280px] max-w-[90vw]',
+        type === 'success' && 'bg-teal-500 text-white',
+        type === 'error' && 'bg-red-500 text-white',
+        type === 'info' && 'bg-warm-900 text-white',
         className
       )}
       role="alert"
     >
-      <span>{message}</span>
+      <span className="text-sm font-medium flex-1">{message}</span>
       {onClose && (
         <button
           type="button"
           onClick={onClose}
-          className="ml-2 opacity-70 hover:opacity-100"
+          className="ml-1 opacity-70 hover:opacity-100 text-lg"
           aria-label="Close"
         >
           ×
@@ -54,27 +49,19 @@ function ToastSingle({ message, type = 'info', onClose, className }: ToastProps)
 }
 
 export function Toast({ message, type = 'info', onClose, className }: ToastProps) {
-  return <ToastSingle message={message} type={type} onClose={onClose} className={className} />
+  return (
+    <div className="fixed top-4 left-1/2 -translate-x-1/2 z-50">
+      <ToastSingle message={message} type={type} onClose={onClose} className={className} />
+    </div>
+  )
 }
 
 export function ToastContainer({ toasts, onClose }: ToastListProps) {
   if (toasts.length === 0) return null
   return (
-    <div className="fixed bottom-6 right-6 z-50 flex flex-col gap-2">
+    <div className="fixed top-4 left-1/2 -translate-x-1/2 z-50 flex flex-col gap-2 items-center">
       {toasts.map((t) => (
-        <ToastSingle
-          key={t.id}
-          message={t.message}
-          type={t.type}
-          onClose={() => onClose(t.id)}
-          className={
-            t.type === 'success'
-              ? 'bg-emerald-50 text-emerald-700 border-emerald-200'
-              : t.type === 'error'
-                ? 'bg-red-50 text-red-700 border-red-200'
-                : 'bg-blue-50 text-blue-700 border-blue-200'
-          }
-        />
+        <ToastSingle key={t.id} message={t.message} type={t.type} onClose={() => onClose(t.id)} />
       ))}
     </div>
   )
@@ -83,18 +70,13 @@ export function ToastContainer({ toasts, onClose }: ToastListProps) {
 let toastId = 0
 export function useToast() {
   const [toasts, setToasts] = useState<ToastItem[]>([])
-
   const addToast = useCallback((item: { type: 'success' | 'error' | 'info'; message: string }) => {
     const id = `toast-${++toastId}`
     setToasts((prev) => [...prev, { ...item, id }])
-    setTimeout(() => {
-      setToasts((prev) => prev.filter((t) => t.id !== id))
-    }, 5000)
+    setTimeout(() => { setToasts((prev) => prev.filter((t) => t.id !== id)) }, 4000)
   }, [])
-
   const removeToast = useCallback((id: string) => {
     setToasts((prev) => prev.filter((t) => t.id !== id))
   }, [])
-
   return { toasts, addToast, removeToast }
 }

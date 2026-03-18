@@ -42,7 +42,7 @@ export async function POST(request: NextRequest) {
     const result = await sendOtp(
       phone,
       channel as "sms" | "whatsapp",
-      `DeedRoom: Signing as ${sigReq.party.inviteName || "party"}`
+      `SignNest: Signing as ${sigReq.party.inviteName || "party"}`
     )
     if (!result?.pinId) return NextResponse.json({ error: "Failed to send OTP" }, { status: 500 })
 
