@@ -23,7 +23,7 @@ export async function POST(
     const doc = await prisma.document.findUnique({
       where: { id },
       include: {
-        deal: { select: { createdById: true }, include: { parties: { select: { userId: true, role: true } } } },
+        deal: { include: { parties: { select: { userId: true, role: true } } } },
       },
     });
     if (!doc) return NextResponse.json({ error: "Not found" }, { status: 404 });

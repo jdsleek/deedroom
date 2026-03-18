@@ -21,7 +21,6 @@ export const metadata: Metadata = {
     "Secure transaction rooms for real estate. Create deals, share documents, collect e-signatures, and produce executed PDFs with full audit trail.",
   applicationName: "SignNest",
   manifest: "/manifest.json",
-  themeColor: "#1B2838",
   appleWebApp: {
     capable: true,
     statusBarStyle: "black-translucent",
@@ -38,6 +37,7 @@ export const viewport: Viewport = {
   maximumScale: 1,
   userScalable: false,
   viewportFit: "cover",
+  themeColor: "#1B2838",
 };
 
 export default function RootLayout({

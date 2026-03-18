@@ -34,8 +34,8 @@ export async function sendEmail(params: SendEmailParams) {
 
   if (!res.ok) {
     const err = await res.json().catch(() => ({}))
-    console.error('[SignNest] Brevo email failed:', err)
-    throw new Error(`Email send failed: ${res.status}`)
+    console.warn('[SignNest] Brevo email failed (non-fatal):', err)
+    return null
   }
 
   return res.json()
