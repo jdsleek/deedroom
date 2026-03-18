@@ -32,8 +32,9 @@ export async function POST(request: Request) {
 
   if (!deal) return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
 
+  let party
   try {
-    const party = await prisma.dealParty.create({
+    party = await prisma.dealParty.create({
       data: {
         dealId: parsed.data.deal_id,
         role: parsed.data.role,
@@ -49,16 +50,6 @@ export async function POST(request: Request) {
     }
     throw e
   }
-
-  const party = await prisma.dealParty.create({
-    data: {
-      dealId: parsed.data.deal_id,
-      role: parsed.data.role,
-      inviteName: parsed.data.invite_name,
-      invitePhone: parsed.data.invite_phone ?? null,
-      inviteEmail: parsed.data.invite_email ?? null,
-    },
-  })
 
   const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? 'http://localhost:3000'
   const inviteLink = `${appUrl}/invite/${party.inviteToken}`

@@ -1,19 +1,10 @@
 import NextAuth from "next-auth";
 import Credentials from "next-auth/providers/credentials";
-import { PrismaAdapter } from "@auth/prisma-adapter";
 import { prisma } from "@/lib/db";
 import { compare } from "bcryptjs";
 
-const secret = process.env.NEXTAUTH_SECRET ?? process.env.AUTH_SECRET;
-if (!secret || secret === "your-random-32-char-secret") {
-  console.error(
-    "[DeedRoom] AUTH_SECRET is missing or still the placeholder. Add to .env.local: AUTH_SECRET=$(openssl rand -base64 32)"
-  );
-}
-
 export const { handlers, auth, signIn, signOut } = NextAuth({
   trustHost: true,
-  adapter: PrismaAdapter(prisma),
   session: { strategy: "jwt", maxAge: 30 * 24 * 60 * 60 },
   pages: {
     signIn: "/login",
@@ -31,7 +22,6 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
 
         const user = await prisma.user.findFirst({
           where: { email: { equals: email, mode: "insensitive" } },
-          include: { profile: true },
         });
         if (!user?.password) return null;
 
@@ -58,15 +48,19 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
     },
     async signIn({ user }) {
       if (!user.id) return false;
-      const profile = await prisma.profile.findUnique({ where: { id: user.id } });
-      if (!profile) {
-        await prisma.profile.create({
-          data: {
-            id: user.id,
-            fullName: user.name ?? user.email ?? "User",
-            email: user.email ?? null,
-          },
-        });
+      try {
+        const profile = await prisma.profile.findUnique({ where: { id: user.id } });
+        if (!profile) {
+          await prisma.profile.create({
+            data: {
+              id: user.id,
+              fullName: user.name ?? user.email ?? "User",
+              email: user.email ?? null,
+            },
+          });
+        }
+      } catch (e) {
+        console.error("[DeedRoom] Profile auto-create failed:", e);
       }
       return true;
     },

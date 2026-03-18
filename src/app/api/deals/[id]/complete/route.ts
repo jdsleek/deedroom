@@ -1,24 +1,27 @@
-import { createClient } from '@/lib/supabase/server'
+import { auth } from '@/auth'
+import { prisma } from '@/lib/db'
 import { NextResponse } from 'next/server'
 import { logAudit } from '@/lib/audit'
 
 export async function POST(request: Request, { params }: { params: Promise<{ id: string }> }) {
   const { id } = await params
-  const supabase = await createClient()
-  const { data: { user } } = await supabase.auth.getUser()
-  if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+  const session = await auth()
+  const userId = (session?.user as { id?: string })?.id
+  if (!userId) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
 
-  const { data: deal } = await supabase.from('deals').select('created_by').eq('id', id).single()
-  if (!deal || deal.created_by !== user.id) {
+  const deal = await prisma.deal.findUnique({
+    where: { id },
+    select: { createdById: true },
+  })
+  if (!deal || deal.createdById !== userId) {
     return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
   }
 
-  const { error } = await supabase
-    .from('deals')
-    .update({ status: 'completed', completed_at: new Date().toISOString() })
-    .eq('id', id)
+  await prisma.deal.update({
+    where: { id },
+    data: { status: 'completed', completedAt: new Date() },
+  })
 
-  if (error) return NextResponse.json({ error: error.message }, { status: 500 })
-  await logAudit({ dealId: id, action: 'deal_completed', actorId: user.id })
+  await logAudit({ dealId: id, action: 'deal_completed', actorId: userId })
   return NextResponse.json({ data: { ok: true } })
 }

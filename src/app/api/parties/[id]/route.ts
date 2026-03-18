@@ -1,4 +1,5 @@
-import { createClient } from '@/lib/supabase/server'
+import { auth } from '@/auth'
+import { prisma } from '@/lib/db'
 import { NextResponse } from 'next/server'
 
 export async function PATCH(
@@ -6,41 +7,35 @@ export async function PATCH(
   { params }: { params: Promise<{ id: string }> }
 ) {
   const { id } = await params
-  const supabase = await createClient()
-  const { data: { user } } = await supabase.auth.getUser()
-  if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+  const session = await auth()
+  const userId = (session?.user as { id?: string })?.id
+  if (!userId) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
 
   const body = await request.json()
   const { user_id } = body
 
-  const { data: party } = await supabase
-    .from('deal_parties')
-    .select('deal_id, id')
-    .eq('id', id)
-    .single()
-
+  const party = await prisma.dealParty.findUnique({
+    where: { id },
+    select: { dealId: true },
+  })
   if (!party) return NextResponse.json({ error: 'Party not found' }, { status: 404 })
 
-  const { data: deal } = await supabase
-    .from('deals')
-    .select('created_by')
-    .eq('id', party.deal_id)
-    .single()
+  const deal = await prisma.deal.findUnique({
+    where: { id: party.dealId },
+    select: { createdById: true },
+  })
 
-  const isCreator = deal?.created_by === user.id
-  const isSelfLinking = user_id === user.id
+  const isCreator = deal?.createdById === userId
+  const isSelfLinking = user_id === userId
 
   if (!isCreator && !isSelfLinking) {
     return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
   }
 
-  const { data, error } = await supabase
-    .from('deal_parties')
-    .update({ user_id: user_id ?? null })
-    .eq('id', id)
-    .select()
-    .single()
+  const updated = await prisma.dealParty.update({
+    where: { id },
+    data: { userId: user_id ?? null },
+  })
 
-  if (error) return NextResponse.json({ error: error.message }, { status: 500 })
-  return NextResponse.json({ data })
+  return NextResponse.json({ data: updated })
 }

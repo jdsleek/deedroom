@@ -1,27 +1,42 @@
-import { NextRequest, NextResponse } from 'next/server';
-import { createClient } from '@/lib/supabase/server';
+import { NextRequest, NextResponse } from 'next/server'
+import { auth } from '@/auth'
+import { prisma } from '@/lib/db'
 
 export async function GET(
   request: NextRequest,
   { params }: { params: Promise<{ dealId: string }> }
 ) {
-  const { dealId } = await params;
-  const supabase = await createClient();
-  const { data: { user } } = await supabase.auth.getUser();
+  const { dealId } = await params
+  const session = await auth()
+  const userId = (session?.user as { id?: string })?.id
+  if (!userId) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
 
-  if (!user) {
-    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-  }
+  const deal = await prisma.deal.findFirst({
+    where: {
+      id: dealId,
+      OR: [{ createdById: userId }, { parties: { some: { userId } } }],
+    },
+    select: { id: true },
+  })
+  if (!deal) return NextResponse.json({ error: 'Not found' }, { status: 404 })
 
-  const { data, error } = await supabase
-    .from('audit_logs')
-    .select('*')
-    .eq('deal_id', dealId)
-    .order('created_at', { ascending: true });
+  const logs = await prisma.auditLog.findMany({
+    where: { dealId },
+    orderBy: { createdAt: 'asc' },
+  })
 
-  if (error) {
-    return NextResponse.json({ error: error.message }, { status: 500 });
-  }
+  const data = logs.map((l) => ({
+    id: l.id,
+    deal_id: l.dealId,
+    action: l.action,
+    actor_id: l.actorId,
+    actor_name: l.actorName,
+    actor_phone: l.actorPhone,
+    metadata: l.metadata as Record<string, unknown>,
+    ip_address: l.ipAddress,
+    user_agent: l.userAgent,
+    created_at: l.createdAt.toISOString(),
+  }))
 
-  return NextResponse.json({ data: data ?? [] });
+  return NextResponse.json({ data })
 }
