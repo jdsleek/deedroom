@@ -22,6 +22,9 @@ const auditActions = [
   "otp_failed",
   "signature_placed",
   "signature_completed",
+  "payment_created",
+  "payment_updated",
+  "payment_deleted",
 ] as const;
 
 export type AuditAction = (typeof auditActions)[number];

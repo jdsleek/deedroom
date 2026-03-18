@@ -1,6 +1,8 @@
 'use client';
 
-import { User, Mail, Phone } from 'lucide-react';
+import { useState } from 'react';
+import { useRouter } from 'next/navigation';
+import { User, Mail, Phone, XCircle } from 'lucide-react';
 import { Badge } from '@/components/ui/Badge';
 import { Button } from '@/components/ui/Button';
 import { PARTY_ROLE_LABELS } from '@/types';
@@ -25,7 +27,26 @@ export function PartyList({
   parties,
   onInvite,
   canInvite = false,
+  currentUserId,
 }: PartyListProps) {
+  const router = useRouter();
+  const [decliningId, setDecliningId] = useState<string | null>(null);
+
+  async function handleDecline(partyId: string) {
+    if (!confirm('Are you sure you want to decline this invite?')) return;
+    setDecliningId(partyId);
+    try {
+      const res = await fetch(`/api/parties/${partyId}/decline`, { method: 'POST' });
+      if (!res.ok) {
+        const body = await res.json().catch(() => null);
+        alert(body?.error ?? 'Failed to decline');
+        return;
+      }
+      router.refresh();
+    } finally {
+      setDecliningId(null);
+    }
+  }
   return (
     <div className="space-y-3 mt-4">
       <div className="flex items-center justify-between">
@@ -82,12 +103,29 @@ export function PartyList({
                   )}
                 </div>
               </div>
-              <Badge
-                variant="outline"
-                className={`ml-2 flex-shrink-0 ${PARTY_STATUS_STYLES[party.status] ?? 'bg-warm-100 text-warm-600'}`}
-              >
-                {party.status}
-              </Badge>
+              <div className="flex items-center gap-2 ml-2 flex-shrink-0">
+                <Badge
+                  variant="outline"
+                  className={PARTY_STATUS_STYLES[party.status] ?? 'bg-warm-100 text-warm-600'}
+                >
+                  {party.status}
+                </Badge>
+                {currentUserId &&
+                  party.user_id === currentUserId &&
+                  party.status !== 'signed' &&
+                  party.status !== 'declined' && (
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      className="text-red-600 border-red-200 hover:bg-red-50"
+                      disabled={decliningId === party.id}
+                      onClick={() => handleDecline(party.id)}
+                    >
+                      <XCircle className="h-3.5 w-3.5 mr-1" />
+                      {decliningId === party.id ? 'Declining…' : 'Decline'}
+                    </Button>
+                  )}
+              </div>
             </li>
           ))}
         </ul>

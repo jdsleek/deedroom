@@ -12,6 +12,7 @@ const InvitePartySchema = z.object({
   invite_name: z.string().min(1).max(200),
   invite_phone: z.string().optional().nullable(),
   invite_email: z.string().email().optional().nullable(),
+  sign_order: z.number().int().min(1).optional().nullable(),
 }).refine((d) => d.invite_phone || d.invite_email, { message: 'Phone or email required' })
 
 export async function POST(request: Request) {
@@ -38,6 +39,7 @@ export async function POST(request: Request) {
       data: {
         dealId: parsed.data.deal_id,
         role: parsed.data.role,
+        signOrder: parsed.data.sign_order ?? null,
         inviteName: parsed.data.invite_name,
         invitePhone: parsed.data.invite_phone ?? null,
         inviteEmail: parsed.data.invite_email ?? null,

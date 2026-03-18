@@ -3,8 +3,11 @@
 import { useEffect, useState } from 'react'
 import { useSession } from 'next-auth/react'
 import { signOut } from 'next-auth/react'
+import Link from 'next/link'
 import { Button } from '@/components/ui/Button'
 import { Input } from '@/components/ui/Input'
+import { Badge } from '@/components/ui/Badge'
+import { ShieldCheck } from 'lucide-react'
 import type { Profile } from '@/types'
 
 export default function SettingsPage() {
@@ -106,6 +109,45 @@ export default function SettingsPage() {
             {saving ? 'Saving…' : 'Save changes'}
           </Button>
         </form>
+      </div>
+
+      {/* Verification section */}
+      <div className="rounded-2xl border border-warm-200 bg-white p-6 shadow-xs">
+        <div className="flex items-center justify-between mb-2">
+          <div className="flex items-center gap-2.5">
+            <ShieldCheck className="h-5 w-5 text-coral-500" />
+            <h2 className="font-display text-lg font-semibold text-warm-900">Verification</h2>
+          </div>
+          <Badge
+            variant={
+              profile?.kyc_status === 'verified'
+                ? 'success'
+                : profile?.kyc_status === 'submitted'
+                  ? 'info'
+                  : profile?.kyc_status === 'rejected'
+                    ? 'danger'
+                    : 'warning'
+            }
+          >
+            {profile?.kyc_status === 'verified'
+              ? 'Verified'
+              : profile?.kyc_status === 'submitted'
+                ? 'Under Review'
+                : profile?.kyc_status === 'rejected'
+                  ? 'Rejected'
+                  : 'Pending'}
+          </Badge>
+        </div>
+        <p className="text-sm text-warm-600 mb-4">
+          {profile?.kyc_status === 'verified'
+            ? 'Your identity has been verified. You have full access.'
+            : 'Complete identity verification to unlock all features.'}
+        </p>
+        <Link href="/kyc">
+          <Button variant="outline" className="border-warm-200 text-warm-700 hover:bg-warm-50">
+            {profile?.kyc_status === 'verified' ? 'View verification' : 'Complete verification'}
+          </Button>
+        </Link>
       </div>
 
       {/* Sign out section */}

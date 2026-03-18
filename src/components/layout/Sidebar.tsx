@@ -3,11 +3,12 @@
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { cn } from '@/lib/utils'
-import { LayoutDashboard, Handshake, FileText, Settings } from 'lucide-react'
+import { LayoutDashboard, Handshake, ShieldCheck, Settings, Shield } from 'lucide-react'
 
 const navItems = [
   { href: '/dashboard', label: 'Dashboard', icon: LayoutDashboard },
   { href: '/deals', label: 'Deals', icon: Handshake },
+  { href: '/kyc', label: 'Verification', icon: ShieldCheck },
   { href: '/settings', label: 'Settings', icon: Settings },
 ]
 
@@ -45,6 +46,21 @@ export function Sidebar() {
             </Link>
           )
         })}
+
+        <div className="pt-3 mt-3 border-t border-warm-100">
+          <Link
+            href="/admin"
+            className={cn(
+              'flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-[15px] font-medium transition-all duration-150',
+              pathname.startsWith('/admin')
+                ? 'bg-coral-50 text-coral-600'
+                : 'text-warm-500 hover:bg-warm-50 hover:text-warm-800'
+            )}
+          >
+            <Shield className={cn('h-[20px] w-[20px]', pathname.startsWith('/admin') ? 'text-coral-500' : 'text-warm-400')} />
+            <span>Admin</span>
+          </Link>
+        </div>
       </nav>
 
       <div className="p-4 border-t border-warm-100">

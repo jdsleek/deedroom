@@ -63,6 +63,7 @@ export function partyToApi(p: {
   dealId: string
   userId: string | null
   role: string
+  signOrder?: number | null
   status: string
   inviteName: string
   invitePhone: string | null
@@ -81,6 +82,7 @@ export function partyToApi(p: {
     deal_id: p.dealId,
     user_id: p.userId,
     role: p.role,
+    sign_order: p.signOrder ?? null,
     status: p.status,
     invite_name: p.inviteName,
     invite_phone: p.invitePhone,
@@ -129,6 +131,39 @@ export function documentToApi(d: {
     version: d.version,
     created_at: d.createdAt.toISOString(),
     updated_at: d.updatedAt.toISOString(),
+  }
+}
+
+export function paymentToApi(p: {
+  id: string
+  dealId: string
+  description: string
+  amount: bigint
+  currency: string
+  status: string
+  method: string | null
+  reference: string | null
+  paidBy: string | null
+  paidAt: Date | null
+  receiptUrl: string | null
+  createdAt: Date
+  updatedAt: Date
+  [k: string]: unknown
+}) {
+  return {
+    id: p.id,
+    deal_id: p.dealId,
+    description: p.description,
+    amount: Number(p.amount),
+    currency: p.currency,
+    status: p.status,
+    method: p.method,
+    reference: p.reference,
+    paid_by: p.paidBy,
+    paid_at: p.paidAt?.toISOString() ?? null,
+    receipt_url: p.receiptUrl,
+    created_at: p.createdAt.toISOString(),
+    updated_at: p.updatedAt.toISOString(),
   }
 }
 

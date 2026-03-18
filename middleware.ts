@@ -1,7 +1,7 @@
 import { NextResponse, type NextRequest } from 'next/server'
 import { getToken } from 'next-auth/jwt'
 
-const PROTECTED_PREFIXES = ['/dashboard', '/deals', '/settings']
+const PROTECTED_PREFIXES = ['/dashboard', '/deals', '/settings', '/admin']
 const AUTH_ROUTES = ['/login', '/register']
 const PUBLIC_PREFIXES = ['/invite', '/api/invites', '/api/auth']
 

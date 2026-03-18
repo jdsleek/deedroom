@@ -76,6 +76,7 @@ export interface Deal {
   parties?: DealParty[];
   documents?: Document[];
   signature_requests?: SignatureRequest[];
+  payments?: Payment[];
 }
 
 export interface DealParty {
@@ -83,6 +84,7 @@ export interface DealParty {
   deal_id: string;
   user_id: string | null;
   role: PartyRole;
+  sign_order: number | null;
   status: PartyStatus;
   invite_name: string;
   invite_phone: string | null;
@@ -146,6 +148,38 @@ export interface AuditLog {
   user_agent: string | null;
   created_at: string;
 }
+
+export type PaymentStatus = 'pending' | 'paid' | 'failed' | 'refunded'
+
+export interface Payment {
+  id: string
+  deal_id: string
+  description: string
+  amount: number
+  currency: string
+  status: PaymentStatus
+  method: string | null
+  reference: string | null
+  paid_by: string | null
+  paid_at: string | null
+  receipt_url: string | null
+  created_at: string
+  updated_at: string
+}
+
+export const PAYMENT_STATUS_CONFIG = {
+  pending: { label: 'Pending', variant: 'warning' as const },
+  paid: { label: 'Paid', variant: 'success' as const },
+  failed: { label: 'Failed', variant: 'danger' as const },
+  refunded: { label: 'Refunded', variant: 'info' as const },
+} as const
+
+export const PAYMENT_METHODS = [
+  { value: 'bank_transfer', label: 'Bank Transfer' },
+  { value: 'cash', label: 'Cash' },
+  { value: 'paystack', label: 'Paystack (coming soon)', disabled: true },
+  { value: 'flutterwave', label: 'Flutterwave (coming soon)', disabled: true },
+] as const
 
 export type Kobo = number;
 export const toNairaHelper = (k: Kobo) => k / 100;

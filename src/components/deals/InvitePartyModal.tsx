@@ -21,6 +21,7 @@ export function InvitePartyModal({ dealId, open, onClose, onSuccess }: InvitePar
   const [phone, setPhone] = useState('')
   const [email, setEmail] = useState('')
   const [role, setRole] = useState<PartyRole>('tenant')
+  const [signOrder, setSignOrder] = useState<string>('')
   const [channel, setChannel] = useState<'whatsapp' | 'sms'>('whatsapp')
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
@@ -31,6 +32,7 @@ export function InvitePartyModal({ dealId, open, onClose, onSuccess }: InvitePar
     setPhone('')
     setEmail('')
     setRole('tenant')
+    setSignOrder('')
     setError(null)
     setInviteLink(null)
   }
@@ -58,6 +60,7 @@ export function InvitePartyModal({ dealId, open, onClose, onSuccess }: InvitePar
           invite_name: name.trim(),
           invite_phone: phone.trim() || null,
           invite_email: email.trim() || null,
+          sign_order: signOrder ? parseInt(signOrder, 10) : null,
         }),
       })
       const json = await res.json()
@@ -118,6 +121,14 @@ export function InvitePartyModal({ dealId, open, onClose, onSuccess }: InvitePar
               ))}
             </select>
           </div>
+          <Input
+            label="Sign Order (optional)"
+            type="number"
+            min={1}
+            value={signOrder}
+            onChange={(e) => setSignOrder(e.target.value)}
+            placeholder="e.g. 1, 2, 3..."
+          />
           <div>
             <label className="mb-1.5 block text-sm font-medium text-warm-800">Send invite via</label>
             <div className="flex gap-4">

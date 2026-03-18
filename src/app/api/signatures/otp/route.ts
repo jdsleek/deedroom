@@ -62,6 +62,13 @@ export async function POST(request: NextRequest) {
       metadata: { signatureRequestId: signature_request_id },
     })
 
+    const deal = await prisma.deal.findUnique({ where: { id: sigReq.dealId }, select: { status: true } })
+    if (deal && (deal.status === 'sent' || deal.status === 'viewing')) {
+      await prisma.deal.update({ where: { id: sigReq.dealId }, data: { status: 'signing' } })
+    }
+
+    await prisma.dealParty.update({ where: { id: sigReq.partyId }, data: { status: 'signing' } })
+
     return NextResponse.json({ data: { expires_at: otpExpiresAt.toISOString() } })
   } catch (e) {
     console.error(e)

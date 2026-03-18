@@ -42,6 +42,10 @@ export async function GET(request: Request, { params }: { params: Promise<{ id: 
         actorName: session?.user?.name ?? session?.user?.email ?? undefined,
       })
     }
+
+    if (deal.status === 'sent') {
+      await prisma.deal.update({ where: { id }, data: { status: 'viewing' } })
+    }
   }
 
   const data = {

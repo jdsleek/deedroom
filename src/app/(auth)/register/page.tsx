@@ -14,6 +14,7 @@ export default function RegisterPage() {
   const [fullName, setFullName] = useState('');
   const [email, setEmail] = useState('');
   const [phone, setPhone] = useState('');
+  const [role, setRole] = useState('realtor');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
 
@@ -25,7 +26,7 @@ export default function RegisterPage() {
       const res = await fetch('/api/auth/register', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ fullName, email, phone: phone || undefined, password }),
+        body: JSON.stringify({ fullName, email, phone: phone || undefined, role, password }),
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error ?? 'Registration failed');
@@ -77,6 +78,21 @@ export default function RegisterPage() {
             onChange={(e) => setPhone(e.target.value)}
             placeholder="+234 800 000 0000"
           />
+          <div>
+            <label className="block text-sm font-medium text-warm-700 mb-1.5">Role</label>
+            <select
+              value={role}
+              onChange={(e) => setRole(e.target.value)}
+              className="w-full rounded-xl border border-warm-200 bg-white px-4 py-2.5 text-sm text-warm-900 focus:border-coral-400 focus:outline-none focus:ring-2 focus:ring-coral-500/20 transition-colors"
+            >
+              <option value="realtor">Realtor / Agent</option>
+              <option value="landlord">Landlord</option>
+              <option value="tenant">Tenant</option>
+              <option value="buyer">Buyer</option>
+              <option value="developer">Developer</option>
+              <option value="lawyer">Lawyer</option>
+            </select>
+          </div>
           <Input
             label="Password"
             type="password"

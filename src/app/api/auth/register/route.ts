@@ -3,11 +3,14 @@ import { hash } from 'bcryptjs'
 import { z } from 'zod'
 import { prisma } from '@/lib/db'
 
+const VALID_ROLES = ['realtor', 'landlord', 'tenant', 'buyer', 'developer', 'lawyer'] as const
+
 const schema = z.object({
   email: z.string().email(),
   password: z.string().min(6),
   fullName: z.string().min(1).max(200),
   phone: z.string().optional(),
+  role: z.enum(VALID_ROLES).default('realtor'),
 })
 
 export async function POST(request: Request) {
@@ -17,7 +20,7 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: parsed.error.flatten() }, { status: 400 })
   }
 
-  const { email: rawEmail, password: rawPassword, fullName, phone } = parsed.data
+  const { email: rawEmail, password: rawPassword, fullName, phone, role } = parsed.data
   const email = rawEmail.trim().toLowerCase()
   const password = rawPassword.trim()
 
@@ -45,6 +48,7 @@ export async function POST(request: Request) {
       fullName,
       email,
       phone: phone ?? null,
+      role,
     },
   })
 

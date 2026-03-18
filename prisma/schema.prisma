@@ -102,6 +102,7 @@ model Deal {
   documents        Document[]
   signatureRequests SignatureRequest[]
   auditLogs        AuditLog[]
+  payments         Payment[]
 
   @@index([createdById])
   @@index([status])
@@ -112,6 +113,7 @@ model DealParty {
   dealId      String    @map("deal_id")
   userId      String?   @map("user_id")
   role        String
+  signOrder   Int?      @map("sign_order")
   status      String    @default("invited")
   inviteName  String    @map("invite_name")
   invitePhone String?   @map("invite_phone")
@@ -198,4 +200,25 @@ model AuditLog {
 
   @@index([dealId])
   @@index([createdAt(sort: Desc)])
+}
+
+model Payment {
+  id          String    @id @default(uuid())
+  dealId      String    @map("deal_id")
+  description String
+  amount      BigInt
+  currency    String    @default("NGN")
+  status      String    @default("pending") // pending, paid, failed, refunded
+  method      String?   // bank_transfer, cash, paystack, flutterwave
+  reference   String?   // external payment reference
+  paidBy      String?   @map("paid_by")
+  paidAt      DateTime? @map("paid_at")
+  receiptUrl  String?   @map("receipt_url")
+  metadata    Json      @default("{}")
+  createdAt   DateTime  @default(now()) @map("created_at")
+  updatedAt   DateTime  @updatedAt @map("updated_at")
+
+  deal        Deal     @relation(fields: [dealId], references: [id], onDelete: Cascade)
+
+  @@index([dealId])
 }

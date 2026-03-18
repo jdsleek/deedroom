@@ -3,10 +3,11 @@
 import { useState } from 'react'
 import { DocumentCard } from './DocumentCard'
 import { UploadDropzone, type UploadConfig } from './UploadDropzone'
+import { TemplateSelector } from './TemplateSelector'
 import { Modal } from '@/components/ui/Modal'
 import { Button } from '@/components/ui/Button'
 import { Spinner } from '@/components/ui/Spinner'
-import type { Document as DocType, DocCategory } from '@/types'
+import type { Document as DocType, DocCategory, DealType } from '@/types'
 
 const CATEGORIES: (DocCategory | 'all')[] = ['all', 'agreement', 'id', 'cac', 'survey', 'receipt', 'checklist', 'approval', 'other']
 const CATEGORY_LABELS: Record<string, string> = {
@@ -23,14 +24,16 @@ const CATEGORY_LABELS: Record<string, string> = {
 
 interface DocumentVaultProps {
   dealId: string
+  dealType?: DealType
   documents: DocType[]
   canManage?: boolean
   onRefresh: () => void
 }
 
-export function DocumentVault({ dealId, documents, canManage = true, onRefresh }: DocumentVaultProps) {
+export function DocumentVault({ dealId, dealType = 'rent', documents, canManage = true, onRefresh }: DocumentVaultProps) {
   const [category, setCategory] = useState<DocCategory | 'all'>('all')
   const [uploadModal, setUploadModal] = useState(false)
+  const [templateModal, setTemplateModal] = useState(false)
   const [uploading, setUploading] = useState(false)
   const [uploadConfig, setUploadConfig] = useState<UploadConfig>({
     category: 'other',
@@ -123,9 +126,14 @@ export function DocumentVault({ dealId, documents, canManage = true, onRefresh }
             {filtered.length} document{filtered.length !== 1 ? 's' : ''}
           </p>
           {canManage && (
-            <Button onClick={() => setUploadModal(true)}>
-              Upload Document
-            </Button>
+            <>
+              <Button variant="outline" onClick={() => setTemplateModal(true)}>
+                Use Template
+              </Button>
+              <Button onClick={() => setUploadModal(true)}>
+                Upload Document
+              </Button>
+            </>
           )}
         </div>
       </div>
@@ -162,6 +170,18 @@ export function DocumentVault({ dealId, documents, canManage = true, onRefresh }
             onConfigChange={setUploadConfig}
           />
         )}
+      </Modal>
+
+      <Modal isOpen={templateModal} onClose={() => setTemplateModal(false)} title="Generate from Template" className="lg:max-w-2xl">
+        <TemplateSelector
+          dealId={dealId}
+          dealType={dealType}
+          onGenerated={() => {
+            setTemplateModal(false)
+            onRefresh()
+          }}
+          onClose={() => setTemplateModal(false)}
+        />
       </Modal>
     </div>
   )

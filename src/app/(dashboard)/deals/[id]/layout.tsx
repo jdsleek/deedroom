@@ -27,6 +27,7 @@ export default function DealRoomLayout({ children }: { children: React.ReactNode
     { href: base, label: 'Overview' },
     { href: `${base}/documents`, label: 'Documents' },
     { href: `${base}/signatures`, label: 'Signatures' },
+    { href: `${base}/payments`, label: 'Payments' },
     { href: `${base}/audit`, label: 'Audit Trail' },
   ]
 
