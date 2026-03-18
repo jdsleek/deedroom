@@ -27,7 +27,16 @@ export const metadata: Metadata = {
     title: "SignNest",
   },
   icons: {
-    apple: "/icons/icon-192.svg",
+    icon: [
+      { url: "/icons/icon-48.png", sizes: "48x48", type: "image/png" },
+      { url: "/icons/icon-96.png", sizes: "96x96", type: "image/png" },
+      { url: "/icons/icon-256.png", sizes: "256x256", type: "image/png" },
+    ],
+    apple: [
+      { url: "/icons/icon-180.png", sizes: "180x180", type: "image/png" },
+      { url: "/icons/icon-152.png", sizes: "152x152", type: "image/png" },
+      { url: "/icons/icon-167.png", sizes: "167x167", type: "image/png" },
+    ],
   },
 };
 

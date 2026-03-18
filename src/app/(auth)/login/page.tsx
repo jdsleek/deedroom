@@ -1,16 +1,15 @@
 'use client';
 
 import { Suspense, useState } from 'react';
-import { useRouter, useSearchParams } from 'next/navigation';
+import { useSearchParams } from 'next/navigation';
 import Link from 'next/link';
-import { signIn } from 'next-auth/react';
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
 import { Spinner } from '@/components/ui/Spinner';
 import { ToastContainer, useToast } from '@/components/ui/Toast';
+import { loginAction } from './actions';
 
 function LoginForm() {
-  const router = useRouter();
   const searchParams = useSearchParams();
   const redirectTo = searchParams.get('redirectTo') ?? '/dashboard';
   const { toasts, addToast, removeToast } = useToast();
@@ -26,26 +25,12 @@ function LoginForm() {
     }
     setLoading(true);
     try {
-      const res = await signIn('credentials', {
-        email,
-        password,
-        redirect: false,
-        callbackUrl: redirectTo,
-      });
-      if (res?.error) {
-        let msg = res.error;
-        if (res.error === 'CredentialsSignin') msg = 'Invalid email or password.';
-        else if (res.error.toLowerCase().includes('configuration') || res.error === 'Configuration') {
-          msg = 'Auth not configured. Add AUTH_SECRET to .env.local (run: openssl rand -base64 32)';
-        }
-        throw new Error(msg);
+      const result = await loginAction(email, password, redirectTo);
+      if (result?.error) {
+        addToast({ type: 'error', message: result.error });
       }
-      if (res?.ok) {
-        window.location.href = redirectTo;
-        return;
-      }
-    } catch (err) {
-      addToast({ type: 'error', message: (err as Error).message });
+    } catch {
+      // signIn redirects on success by throwing NEXT_REDIRECT — this is expected
     } finally {
       setLoading(false);
     }

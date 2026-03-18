@@ -59,6 +59,7 @@ export default function InviteAuthPage() {
 
       const signInRes = await signIn('credentials', { email, password, redirect: false })
       if (signInRes?.error) throw new Error('Login failed after registration')
+      window.location.reload()
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed')
       setLoading(false)
@@ -72,6 +73,7 @@ export default function InviteAuthPage() {
     try {
       const res = await signIn('credentials', { email, password, redirect: false })
       if (res?.error) throw new Error('Invalid email or password')
+      window.location.reload()
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed')
       setLoading(false)
