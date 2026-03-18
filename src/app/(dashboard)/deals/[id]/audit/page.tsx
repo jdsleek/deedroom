@@ -19,6 +19,18 @@ export default function DealAuditPage() {
       .finally(() => setLoading(false))
   }, [id])
 
+  const handleExportEvidence = async () => {
+    const res = await fetch(`/api/audit/${id}/evidence`, { method: 'POST' })
+    if (!res.ok) return
+    const blob = await res.blob()
+    const url = URL.createObjectURL(blob)
+    const a = document.createElement('a')
+    a.href = url
+    a.download = `SignNest-Evidence-${id.slice(0, 8)}.pdf`
+    a.click()
+    URL.revokeObjectURL(url)
+  }
+
   if (loading) {
     return (
       <div className="flex min-h-[200px] items-center justify-center">
@@ -27,5 +39,5 @@ export default function DealAuditPage() {
     )
   }
 
-  return <AuditTrail dealId={id} logs={logs} />
+  return <AuditTrail dealId={id} logs={logs} onExportEvidence={handleExportEvidence} />
 }
