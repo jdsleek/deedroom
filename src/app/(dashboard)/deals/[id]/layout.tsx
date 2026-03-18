@@ -3,7 +3,6 @@
 import { useEffect, useState } from 'react'
 import { useParams, usePathname } from 'next/navigation'
 import Link from 'next/link'
-import { DealTimeline } from '@/components/deals/DealTimeline'
 import { DealStatusBadge } from '@/components/deals/DealStatusBadge'
 import type { Deal } from '@/types'
 
@@ -61,31 +60,25 @@ export default function DealRoomLayout({ children }: { children: React.ReactNode
     <div className="space-y-6">
       {!isOverview && (
         <>
-          <div className="rounded-2xl border border-warm-200 bg-white p-6 shadow-xs">
-            <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
-              <div>
-                <h1 className="font-display text-xl font-bold text-warm-900">{deal.title}</h1>
-                <p className="mt-1 text-warm-600">{deal.property_address}</p>
-                <div className="mt-2 flex items-center gap-2">
-                  <DealStatusBadge status={deal.status} />
-                  <span className="rounded-full border border-warm-200 bg-warm-50 px-3 py-1 text-xs font-medium text-warm-600">
-                    {deal.deal_type}
-                  </span>
-                </div>
-              </div>
-              <DealTimeline status={deal.status} completedAt={deal.completed_at} />
+          <div className="flex items-center gap-3 mb-2">
+            <Link href="/deals" className="text-warm-500 hover:text-warm-700">
+              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" /></svg>
+            </Link>
+            <h1 className="font-display text-lg font-bold text-navy-500">{deal.title}</h1>
+            <div className="ml-auto flex items-center gap-2">
+              <DealStatusBadge status={deal.status} />
             </div>
           </div>
 
-          <nav className="flex gap-2 overflow-x-auto scrollbar-hide pb-2">
+          <nav className="flex border-b border-warm-200 overflow-x-auto scrollbar-hide">
             {tabs.map((tab) => (
               <Link
                 key={tab.href}
                 href={tab.href}
-                className={`whitespace-nowrap rounded-full px-4 py-2 text-sm font-medium transition-colors ${
+                className={`whitespace-nowrap px-4 py-2.5 text-sm font-medium transition-colors border-b-2 ${
                   isActive(tab.href)
-                    ? 'bg-coral-500 text-white'
-                    : 'border border-warm-200 bg-white text-warm-500 hover:border-warm-300 hover:text-warm-700'
+                    ? 'border-navy-500 text-navy-500'
+                    : 'border-transparent text-warm-500 hover:text-warm-700'
                 }`}
               >
                 {tab.label}

@@ -60,14 +60,14 @@ export function AdminShell({ children, user }: AdminShellProps) {
               className={cn(
                 'flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-[15px] font-medium transition-all duration-150',
                 isActive
-                  ? 'bg-coral-50 text-coral-600'
-                  : 'text-warm-500 hover:bg-warm-50 hover:text-warm-800'
+                  ? 'bg-white/15 text-white'
+                  : 'text-white/60 hover:bg-white/10 hover:text-white/90'
               )}
             >
               <Icon
                 className={cn(
                   'h-[20px] w-[20px]',
-                  isActive ? 'text-coral-500' : 'text-warm-400'
+                  isActive ? 'text-coral-400' : 'text-white/50'
                 )}
               />
               <span>{item.label}</span>
@@ -76,11 +76,11 @@ export function AdminShell({ children, user }: AdminShellProps) {
         })}
       </nav>
 
-      <div className="p-4 border-t border-warm-100">
+      <div className="p-4 border-t border-white/10">
         <Link
           href="/dashboard"
           onClick={onNavigate}
-          className="flex items-center gap-2 text-sm text-warm-500 hover:text-warm-700 transition-colors"
+          className="flex items-center gap-2 text-sm text-white/60 hover:text-white transition-colors"
         >
           <ArrowLeft className="h-4 w-4" />
           Back to App
@@ -90,23 +90,17 @@ export function AdminShell({ children, user }: AdminShellProps) {
   )
 
   return (
-    <div className="min-h-screen bg-warm-50 flex">
+    <div className="min-h-screen bg-background flex">
       {/* Desktop sidebar */}
-      <aside className="hidden lg:flex w-[260px] min-h-screen flex-col bg-white border-r border-warm-200 shrink-0">
+      <aside className="hidden lg:flex w-[260px] min-h-screen flex-col bg-navy-500 shrink-0">
         <div className="p-6 pb-4">
           <Link href="/admin" className="flex items-center gap-2.5">
             <div className="w-9 h-9 rounded-xl bg-coral-500 flex items-center justify-center">
-              <span className="text-white font-display font-bold text-lg">
-                S
-              </span>
+              <span className="text-white font-display font-bold text-lg">S</span>
             </div>
             <div className="flex flex-col">
-              <span className="font-display text-xl font-bold text-warm-900">
-                SignNest
-              </span>
-              <span className="text-[11px] font-semibold text-coral-500 -mt-0.5 tracking-wide uppercase">
-                Admin
-              </span>
+              <span className="font-display text-xl font-bold text-white">SignNest</span>
+              <span className="text-[11px] font-semibold text-coral-400 -mt-0.5 tracking-wide uppercase">Admin</span>
             </div>
           </Link>
         </div>
@@ -116,7 +110,7 @@ export function AdminShell({ children, user }: AdminShellProps) {
       {/* Mobile menu overlay */}
       {mobileMenuOpen && (
         <div
-          className="fixed inset-0 bg-warm-900/40 z-40 lg:hidden"
+          className="fixed inset-0 bg-navy-900/40 z-40 lg:hidden"
           onClick={() => setMobileMenuOpen(false)}
           aria-hidden="true"
         />
@@ -125,7 +119,7 @@ export function AdminShell({ children, user }: AdminShellProps) {
       {/* Mobile drawer */}
       <aside
         className={cn(
-          'fixed top-0 left-0 z-50 h-full w-[280px] max-w-[85vw] bg-white border-r border-warm-200 shadow-xl flex flex-col transition-transform duration-300 ease-out lg:hidden',
+          'fixed top-0 left-0 z-50 h-full w-[280px] max-w-[85vw] bg-navy-500 shadow-xl flex flex-col transition-transform duration-300 ease-out lg:hidden',
           mobileMenuOpen ? 'translate-x-0' : '-translate-x-full'
         )}
       >
@@ -136,23 +130,17 @@ export function AdminShell({ children, user }: AdminShellProps) {
             onClick={() => setMobileMenuOpen(false)}
           >
             <div className="w-9 h-9 rounded-xl bg-coral-500 flex items-center justify-center">
-              <span className="text-white font-display font-bold text-lg">
-                S
-              </span>
+              <span className="text-white font-display font-bold text-lg">S</span>
             </div>
             <div className="flex flex-col">
-              <span className="font-display text-xl font-bold text-warm-900">
-                SignNest
-              </span>
-              <span className="text-[11px] font-semibold text-coral-500 -mt-0.5 tracking-wide uppercase">
-                Admin
-              </span>
+              <span className="font-display text-xl font-bold text-white">SignNest</span>
+              <span className="text-[11px] font-semibold text-coral-400 -mt-0.5 tracking-wide uppercase">Admin</span>
             </div>
           </Link>
           <button
             type="button"
             onClick={() => setMobileMenuOpen(false)}
-            className="p-2 rounded-xl text-warm-500 hover:bg-warm-100 hover:text-warm-800 transition-colors"
+            className="p-2 rounded-xl text-white/60 hover:bg-white/10 hover:text-white transition-colors"
             aria-label="Close menu"
           >
             <X className="h-5 w-5" />
@@ -163,25 +151,21 @@ export function AdminShell({ children, user }: AdminShellProps) {
 
       {/* Main content area */}
       <div className="flex-1 flex flex-col min-w-0">
-        <header className="h-14 lg:h-16 bg-white/80 backdrop-blur-md border-b border-warm-100 flex items-center justify-between px-4 lg:px-6 sticky top-0 z-30">
+        <header className="h-14 lg:h-16 bg-navy-500 border-b border-navy-600 flex items-center justify-between px-4 lg:px-6 sticky top-0 z-30">
           <div className="lg:hidden flex items-center gap-2.5">
             <button
               type="button"
               onClick={() => setMobileMenuOpen(true)}
-              className="p-2 -ml-2 rounded-xl text-warm-600 hover:bg-warm-100 transition-colors"
+              className="p-2 -ml-2 rounded-xl text-white/70 hover:bg-white/10 transition-colors"
               aria-label="Open menu"
             >
               <Menu className="h-6 w-6" />
             </button>
             <div className="flex items-center gap-2.5">
               <div className="w-8 h-8 rounded-lg bg-coral-500 flex items-center justify-center">
-                <span className="text-white font-display font-bold text-sm">
-                  S
-                </span>
+                <span className="text-white font-display font-bold text-sm">S</span>
               </div>
-              <span className="font-display text-lg font-bold text-warm-900">
-                SignNest Admin
-              </span>
+              <span className="font-display text-lg font-bold text-white">SignNest Admin</span>
             </div>
           </div>
 
@@ -190,18 +174,16 @@ export function AdminShell({ children, user }: AdminShellProps) {
           <div className="flex items-center gap-3">
             {user && (
               <>
-                <div className="w-8 h-8 rounded-full bg-coral-100 flex items-center justify-center">
-                  <span className="text-xs font-bold text-coral-600">
-                    {initials}
-                  </span>
+                <div className="w-8 h-8 rounded-full bg-white/20 flex items-center justify-center border border-white/30">
+                  <span className="text-xs font-bold text-white">{initials}</span>
                 </div>
-                <span className="hidden lg:block text-sm font-medium text-warm-700">
+                <span className="hidden lg:block text-sm font-medium text-white/80">
                   {user.name ?? user.email}
                 </span>
                 <button
                   type="button"
                   onClick={handleSignOut}
-                  className="text-warm-400 hover:text-warm-600 transition-colors p-1.5 rounded-lg hover:bg-warm-50"
+                  className="text-white/60 hover:text-white transition-colors p-1.5 rounded-lg hover:bg-white/10"
                   title="Sign out"
                 >
                   <LogOut className="h-4 w-4" />

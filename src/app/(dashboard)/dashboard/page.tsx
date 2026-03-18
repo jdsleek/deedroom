@@ -70,23 +70,57 @@ export default async function DashboardPage() {
   const greeting = getGreeting()
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-6">
       {/* Greeting */}
-      <div>
-        <h1 className="font-display text-2xl font-bold text-warm-900">
-          {greeting}, {name}
-        </h1>
-        <p className="text-warm-500 text-sm mt-1">Here&apos;s your deal overview</p>
+      <div className="flex items-center justify-between">
+        <div>
+          <h1 className="font-display text-2xl font-bold text-navy-500">
+            Hello, {name}
+          </h1>
+          <p className="text-warm-500 text-sm mt-1">Here&apos;s your deal overview</p>
+        </div>
+        <Link href="/settings" className="w-10 h-10 rounded-full bg-coral-100 flex items-center justify-center">
+          <span className="text-sm font-bold text-coral-700">
+            {(session?.user?.name ?? session?.user?.email ?? 'U').slice(0, 2).toUpperCase()}
+          </span>
+        </Link>
+      </div>
+
+      {/* Quick Actions */}
+      <div className="grid grid-cols-4 gap-3">
+        <Link href="/deals/new" className="flex flex-col items-center gap-2 p-3 rounded-2xl bg-white border border-warm-200 shadow-xs hover:shadow-sm transition-shadow">
+          <div className="w-12 h-12 rounded-xl bg-coral-500 flex items-center justify-center">
+            <Plus className="w-6 h-6 text-white" />
+          </div>
+          <span className="text-xs font-medium text-warm-700 text-center">New Deal</span>
+        </Link>
+        <Link href="/templates" className="flex flex-col items-center gap-2 p-3 rounded-2xl bg-white border border-warm-200 shadow-xs hover:shadow-sm transition-shadow">
+          <div className="w-12 h-12 rounded-xl bg-coral-500 flex items-center justify-center">
+            <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" /></svg>
+          </div>
+          <span className="text-xs font-medium text-warm-700 text-center">Templates</span>
+        </Link>
+        <Link href="/deals" className="flex flex-col items-center gap-2 p-3 rounded-2xl bg-white border border-warm-200 shadow-xs hover:shadow-sm transition-shadow">
+          <div className="w-12 h-12 rounded-xl bg-coral-500 flex items-center justify-center">
+            <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4" /></svg>
+          </div>
+          <span className="text-xs font-medium text-warm-700 text-center">Documents</span>
+        </Link>
+        <Link href="/deals" className="flex flex-col items-center gap-2 p-3 rounded-2xl bg-white border border-warm-200 shadow-xs hover:shadow-sm transition-shadow">
+          <div className="w-12 h-12 rounded-xl bg-coral-500 flex items-center justify-center">
+            <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01" /></svg>
+          </div>
+          <span className="text-xs font-medium text-warm-700 text-center">Audit Trail</span>
+        </Link>
       </div>
 
       {allDeals.length === 0 ? (
-        /* Empty state */
         <div className="rounded-2xl border border-warm-200 bg-white p-12 text-center shadow-xs">
           <div className="max-w-sm mx-auto">
             <div className="w-16 h-16 mx-auto mb-4 rounded-2xl bg-coral-50 flex items-center justify-center">
               <span className="text-3xl" aria-hidden>📄</span>
             </div>
-            <h2 className="font-display text-xl font-bold text-warm-900">No deals yet</h2>
+            <h2 className="font-display text-xl font-bold text-navy-500">No deals yet</h2>
             <p className="text-warm-500 text-sm mt-2">
               Create your first deal room to invite parties, share documents, and collect signatures.
             </p>
@@ -101,35 +135,33 @@ export default async function DashboardPage() {
         <>
           {/* Stats */}
           <div className="flex overflow-x-auto gap-3 pb-2 scrollbar-hide lg:grid lg:grid-cols-4 lg:overflow-visible lg:pb-0">
-            <div className="flex-shrink-0 w-[200px] lg:w-auto rounded-2xl border border-warm-200 bg-white p-4 shadow-xs">
-              <p className="text-warm-500 text-sm">Active Deals</p>
-              <p className="text-2xl font-display font-bold text-warm-900 mt-1">{activeDeals.length}</p>
+            <div className="flex-shrink-0 w-[160px] lg:w-auto rounded-2xl border border-warm-200 bg-white p-4 shadow-xs">
+              <p className="text-warm-500 text-xs">Active Deals</p>
+              <p className="text-2xl font-display font-bold text-navy-500 mt-1">{activeDeals.length}</p>
             </div>
-            <div className="flex-shrink-0 w-[200px] lg:w-auto rounded-2xl border border-warm-200 bg-white p-4 shadow-xs">
-              <p className="text-warm-500 text-sm">Closed This Month</p>
-              <p className="text-2xl font-display font-bold text-warm-900 mt-1">{completedThisMonth.length}</p>
+            <div className="flex-shrink-0 w-[160px] lg:w-auto rounded-2xl border border-warm-200 bg-white p-4 shadow-xs">
+              <p className="text-warm-500 text-xs">Closed This Month</p>
+              <p className="text-2xl font-display font-bold text-navy-500 mt-1">{completedThisMonth.length}</p>
             </div>
-            <div className="flex-shrink-0 w-[200px] lg:w-auto rounded-2xl border border-warm-200 bg-white p-4 shadow-xs">
-              <p className="text-warm-500 text-sm">Pending Signatures</p>
-              <p className="text-2xl font-display font-bold text-warm-900 mt-1">{pendingSignatures.length}</p>
+            <div className="flex-shrink-0 w-[160px] lg:w-auto rounded-2xl border border-warm-200 bg-white p-4 shadow-xs">
+              <p className="text-warm-500 text-xs">Pending Signatures</p>
+              <p className="text-2xl font-display font-bold text-navy-500 mt-1">{pendingSignatures.length}</p>
             </div>
-            <div className="flex-shrink-0 w-[200px] lg:w-auto rounded-2xl border border-warm-200 bg-white p-4 shadow-xs">
-              <p className="text-warm-500 text-sm">Total Parties</p>
-              <p className="text-2xl font-display font-bold text-warm-900 mt-1">{totalParties}</p>
+            <div className="flex-shrink-0 w-[160px] lg:w-auto rounded-2xl border border-warm-200 bg-white p-4 shadow-xs">
+              <p className="text-warm-500 text-xs">Total Parties</p>
+              <p className="text-2xl font-display font-bold text-navy-500 mt-1">{totalParties}</p>
             </div>
           </div>
 
-          {/* Recent Deals */}
+          {/* Active Deals */}
           <div className="flex items-center justify-between">
-            <h2 className="font-display text-lg font-bold text-warm-900">Recent Deals</h2>
-            <Link href="/deals/new" className="hidden lg:block">
-              <Button variant="primary" className="rounded-xl">
-                New Deal +
-              </Button>
+            <h2 className="font-display text-lg font-bold text-navy-500">Active Deals</h2>
+            <Link href="/deals" className="text-sm font-medium text-coral-500 hover:text-coral-600">
+              View all
             </Link>
           </div>
 
-          <div className="space-y-4">
+          <div className="space-y-3">
             {allDeals.slice(0, 5).map((deal) => (
               <DealCard
                 key={deal.id}
@@ -143,15 +175,6 @@ export default async function DashboardPage() {
           </div>
         </>
       )}
-
-      {/* Mobile FAB */}
-      <Link
-        href="/deals/new"
-        className="fixed bottom-20 right-4 lg:hidden z-50 flex items-center justify-center w-14 h-14 rounded-full bg-coral-500 text-white shadow-lg hover:bg-coral-600 active:scale-95 transition-all"
-        aria-label="New Deal"
-      >
-        <Plus className="w-6 h-6" />
-      </Link>
     </div>
   )
 }

@@ -12,7 +12,7 @@ export default async function DashboardLayout({
   const session = await auth()
   return (
     <SessionProvider session={session}>
-      <div className="min-h-screen bg-warm-50 flex">
+      <div className="min-h-screen bg-background flex">
         <Sidebar />
         <div className="flex-1 flex flex-col min-w-0">
           <Topbar user={session?.user} />

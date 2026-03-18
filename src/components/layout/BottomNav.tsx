@@ -3,11 +3,12 @@
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { cn } from '@/lib/utils'
-import { LayoutDashboard, Handshake, FileText, User } from 'lucide-react'
+import { LayoutDashboard, FileText, Bell, User } from 'lucide-react'
 
 const tabs = [
-  { href: '/dashboard', label: 'Home', icon: LayoutDashboard },
-  { href: '/deals', label: 'Deals', icon: Handshake },
+  { href: '/dashboard', label: 'Dashboard', icon: LayoutDashboard },
+  { href: '/deals', label: 'Deals', icon: FileText },
+  { href: '/notifications', label: 'Notifications', icon: Bell },
   { href: '/settings', label: 'Profile', icon: User },
 ]
 

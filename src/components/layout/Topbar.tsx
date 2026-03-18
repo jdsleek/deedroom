@@ -107,12 +107,12 @@ export function Topbar({ user }: TopbarProps) {
   }
 
   return (
-    <header className="h-14 lg:h-16 bg-white/80 backdrop-blur-md border-b border-warm-100 flex items-center justify-between px-4 lg:px-6 sticky top-0 z-30">
+    <header className="h-14 lg:h-16 bg-navy-500 border-b border-navy-600 flex items-center justify-between px-4 lg:px-6 sticky top-0 z-30">
       <div className="lg:hidden flex items-center gap-2.5">
         <div className="w-8 h-8 rounded-lg bg-coral-500 flex items-center justify-center">
           <span className="text-white font-display font-bold text-sm">S</span>
         </div>
-        <span className="font-display text-lg font-bold text-warm-900">SignNest</span>
+        <span className="font-display text-lg font-bold text-white">SignNest</span>
       </div>
 
       <div className="hidden lg:block" />
@@ -120,12 +120,11 @@ export function Topbar({ user }: TopbarProps) {
       <div className="flex items-center gap-3">
         {user && (
           <>
-            {/* Notification Bell */}
             <div className="relative" ref={dropdownRef}>
               <button
                 type="button"
                 onClick={() => setShowDropdown(!showDropdown)}
-                className="relative text-warm-400 hover:text-warm-600 transition-colors p-1.5 rounded-lg hover:bg-warm-50"
+                className="relative text-white/70 hover:text-white transition-colors p-1.5 rounded-lg hover:bg-white/10"
                 title="Notifications"
               >
                 <Bell className="h-5 w-5" />
@@ -181,16 +180,16 @@ export function Topbar({ user }: TopbarProps) {
               )}
             </div>
 
-            <div className="w-8 h-8 rounded-full bg-coral-100 flex items-center justify-center">
-              <span className="text-xs font-bold text-coral-600">{initials}</span>
+            <div className="w-8 h-8 rounded-full bg-white/20 flex items-center justify-center border border-white/30">
+              <span className="text-xs font-bold text-white">{initials}</span>
             </div>
-            <span className="hidden lg:block text-sm font-medium text-warm-700">
+            <span className="hidden lg:block text-sm font-medium text-white/80">
               {user.name ?? user.email}
             </span>
             <button
               type="button"
               onClick={handleSignOut}
-              className="text-warm-400 hover:text-warm-600 transition-colors p-1.5 rounded-lg hover:bg-warm-50"
+              className="text-white/60 hover:text-white transition-colors p-1.5 rounded-lg hover:bg-white/10"
               title="Sign out"
             >
               <LogOut className="h-4 w-4" />

@@ -34,7 +34,7 @@ const STATUS_STRIPE_COLORS: Record<string, string> = {
   sent: 'bg-blue-500',
   viewing: 'bg-purple-500',
   signing: 'bg-amber-500',
-  completed: 'bg-teal-500',
+  completed: 'bg-coral-500',
   cancelled: 'bg-red-500',
 }
 
@@ -56,7 +56,7 @@ export function DealCard({ deal }: DealCardProps) {
           <div className={cn('w-[3px] flex-shrink-0', stripeColor)} aria-hidden />
 
           <div className="flex-1 min-w-0 p-5">
-            <h3 className="font-display font-bold text-warm-900 truncate">{deal.title}</h3>
+            <h3 className="font-display font-bold text-navy-500 truncate">{deal.title}</h3>
             <p className="text-warm-500 text-sm mt-0.5 truncate">{deal.property_address}</p>
 
             <div className="flex flex-wrap items-center gap-2 mt-3">
