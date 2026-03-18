@@ -61,6 +61,7 @@ export function InvitePartyModal({ dealId, open, onClose, onSuccess }: InvitePar
           invite_phone: phone.trim() || null,
           invite_email: email.trim() || null,
           sign_order: signOrder ? parseInt(signOrder, 10) : null,
+          channel,
         }),
       })
       const json = await res.json()

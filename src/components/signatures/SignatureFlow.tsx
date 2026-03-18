@@ -7,10 +7,24 @@ import { OtpModal } from './OtpModal'
 import { Button } from '@/components/ui/Button'
 import { cn } from '@/lib/utils'
 import type { Document } from '@/types'
+import { format } from 'date-fns'
+
+export interface RequiredFields {
+  signature: boolean
+  initials: boolean
+  date: boolean
+}
+
+const DEFAULT_REQUIRED_FIELDS: RequiredFields = {
+  signature: true,
+  initials: true,
+  date: true,
+}
 
 interface SignatureFlowProps {
   document: Document
   documentUrl: string
+  requiredFields?: RequiredFields
   onRequestOtp: () => Promise<{ expiresAt: string }>
   onVerifyAndSign: (otpCode: string, signatureData: string) => Promise<{ verified: boolean; dealCompleted: boolean }>
 }
@@ -20,21 +34,44 @@ type Step = 'review' | 'sign' | 'verify' | 'done'
 export function SignatureFlow({
   document,
   documentUrl,
+  requiredFields = DEFAULT_REQUIRED_FIELDS,
   onRequestOtp,
   onVerifyAndSign,
 }: SignatureFlowProps) {
   const [step, setStep] = useState<Step>('review')
   const [signatureData, setSignatureData] = useState<string | null>(null)
+  const [initialsData, setInitialsData] = useState<string | null>(null)
+  const [signDate] = useState(() => format(new Date(), 'yyyy-MM-dd'))
   const [otpModalOpen, setOtpModalOpen] = useState(false)
+
+  const hasSignature = requiredFields.signature ? !!signatureData : true
+  const hasInitials = requiredFields.initials ? !!initialsData : true
+  const canProceedToVerify = hasSignature && hasInitials
 
   const handleSignReady = (dataUrl: string) => {
     setSignatureData(dataUrl)
-    setStep('verify')
+  }
+
+  const handleInitialsReady = (dataUrl: string) => {
+    setInitialsData(dataUrl)
+  }
+
+  const handleProceedToVerify = () => {
+    if (canProceedToVerify) setStep('verify')
+  }
+
+  const buildSignaturePayload = (): string => {
+    const payload: { signature?: string; initials?: string; date?: string } = {}
+    if (requiredFields.signature && signatureData) payload.signature = signatureData
+    if (requiredFields.initials && initialsData) payload.initials = initialsData
+    if (requiredFields.date) payload.date = signDate
+    return JSON.stringify(payload)
   }
 
   const handleVerifySubmit = async (code: string) => {
-    if (!signatureData) return { success: false, error: 'No signature' }
-    const result = await onVerifyAndSign(code, signatureData)
+    const payload = buildSignaturePayload()
+    if (!payload || payload === '{}') return { success: false, error: 'No signature data' }
+    const result = await onVerifyAndSign(code, payload)
     if (result.verified) {
       setStep('done')
       setOtpModalOpen(false)
@@ -102,9 +139,49 @@ export function SignatureFlow({
 
       {step === 'sign' && (
         <div className="space-y-4">
-          <div className="rounded-2xl border border-warm-200 bg-white p-6 shadow-xs">
-            <h3 className="font-display text-xl font-semibold text-warm-900 mb-4">Draw Your Signature</h3>
-            <SignaturePad onSave={handleSignReady} savedData={signatureData ?? undefined} />
+          <div className="rounded-2xl border border-warm-200 bg-white p-6 shadow-xs space-y-6">
+            <h3 className="font-display text-xl font-semibold text-warm-900">Complete Required Fields</h3>
+
+            {requiredFields.signature && (
+              <div className="space-y-2">
+                <h4 className="text-sm font-medium text-teal-700">Signature</h4>
+                <SignaturePad
+                  label="Draw your signature"
+                  onSave={handleSignReady}
+                  savedData={signatureData ?? undefined}
+                />
+              </div>
+            )}
+
+            {requiredFields.initials && (
+              <div className="space-y-2">
+                <h4 className="text-sm font-medium text-teal-700">Initials</h4>
+                <SignaturePad
+                  label="Draw your initials"
+                  compact
+                  onSave={handleInitialsReady}
+                  savedData={initialsData ?? undefined}
+                />
+              </div>
+            )}
+
+            {requiredFields.date && (
+              <div className="space-y-2">
+                <h4 className="text-sm font-medium text-teal-700">Date</h4>
+                <div className="rounded-xl border-2 border-warm-200 bg-warm-50 px-4 py-3 text-warm-800 font-medium">
+                  {signDate}
+                </div>
+                <p className="text-xs text-warm-500">Auto-filled with current date</p>
+              </div>
+            )}
+
+            <Button
+              onClick={handleProceedToVerify}
+              disabled={!canProceedToVerify}
+              className="mt-4"
+            >
+              Continue to Verify
+            </Button>
           </div>
         </div>
       )}
@@ -116,23 +193,44 @@ export function SignatureFlow({
             <p className="text-sm text-warm-600 mb-4">
               Your signature is ready. Click below to receive an OTP and complete the signing.
             </p>
-            {signatureData && (
-              <div className="flex flex-wrap items-center gap-4">
-                <img
-                  src={signatureData}
-                  alt="Your signature"
-                  className="h-16 rounded-xl border-2 border-warm-200 bg-white"
-                />
-                <Button
-                  onClick={() => {
-                    setOtpModalOpen(true)
-                    onRequestOtp()
-                  }}
-                >
-                  Get OTP & Complete
-                </Button>
-              </div>
-            )}
+            <div className="flex flex-wrap items-center gap-4">
+              {requiredFields.signature && signatureData && (
+                <div className="flex flex-col items-center gap-1">
+                  <img
+                    src={signatureData}
+                    alt="Your signature"
+                    className="h-16 rounded-xl border-2 border-warm-200 bg-white"
+                  />
+                  <span className="text-xs text-warm-500">Signature</span>
+                </div>
+              )}
+              {requiredFields.initials && initialsData && (
+                <div className="flex flex-col items-center gap-1">
+                  <img
+                    src={initialsData}
+                    alt="Your initials"
+                    className="h-12 rounded-xl border-2 border-warm-200 bg-white"
+                  />
+                  <span className="text-xs text-warm-500">Initials</span>
+                </div>
+              )}
+              {requiredFields.date && (
+                <div className="flex flex-col items-center gap-1">
+                  <span className="rounded-xl border-2 border-warm-200 bg-warm-50 px-3 py-2 text-sm font-medium text-warm-800">
+                    {signDate}
+                  </span>
+                  <span className="text-xs text-warm-500">Date</span>
+                </div>
+              )}
+              <Button
+                onClick={() => {
+                  setOtpModalOpen(true)
+                  onRequestOtp()
+                }}
+              >
+                Get OTP & Complete
+              </Button>
+            </div>
           </div>
         </div>
       )}

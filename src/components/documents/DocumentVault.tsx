@@ -1,13 +1,13 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { DocumentCard } from './DocumentCard'
 import { UploadDropzone, type UploadConfig } from './UploadDropzone'
 import { TemplateSelector } from './TemplateSelector'
 import { Modal } from '@/components/ui/Modal'
 import { Button } from '@/components/ui/Button'
 import { Spinner } from '@/components/ui/Spinner'
-import type { Document as DocType, DocCategory, DealType } from '@/types'
+import type { Document as DocType, DocCategory, DealType, Deal } from '@/types'
 
 const CATEGORIES: (DocCategory | 'all')[] = ['all', 'agreement', 'id', 'cac', 'survey', 'receipt', 'checklist', 'approval', 'other']
 const CATEGORY_LABELS: Record<string, string> = {
@@ -25,21 +25,50 @@ const CATEGORY_LABELS: Record<string, string> = {
 interface DocumentVaultProps {
   dealId: string
   dealType?: DealType
+  deal?: Deal | null
   documents: DocType[]
   canManage?: boolean
   onRefresh: () => void
 }
 
-export function DocumentVault({ dealId, dealType = 'rent', documents, canManage = true, onRefresh }: DocumentVaultProps) {
+export function DocumentVault({ dealId, dealType = 'rent', deal, documents, canManage = true, onRefresh }: DocumentVaultProps) {
   const [category, setCategory] = useState<DocCategory | 'all'>('all')
   const [uploadModal, setUploadModal] = useState(false)
   const [templateModal, setTemplateModal] = useState(false)
   const [uploading, setUploading] = useState(false)
+  const [profile, setProfile] = useState<{ id: string; role: string } | null>(null)
+  const [reviewing, setReviewing] = useState<string | null>(null)
   const [uploadConfig, setUploadConfig] = useState<UploadConfig>({
     category: 'other',
     permission: 'view_only',
     watermark: true,
   })
+
+  useEffect(() => {
+    fetch('/api/profile')
+      .then((r) => r.json())
+      .then(({ data }) => setProfile(data ? { id: data.id, role: data.role } : null))
+      .catch(() => setProfile(null))
+  }, [])
+
+  const isLawyerParty = deal?.parties?.some((p) => p.user_id === profile?.id && p.role === 'lawyer') ?? false
+  const isProfileLawyer = profile?.role === 'lawyer'
+  const canReview = (isLawyerParty || isProfileLawyer) && canManage
+
+  const handleMarkReviewed = async (doc: DocType) => {
+    if (!canReview || doc.reviewed_by) return
+    setReviewing(doc.id)
+    try {
+      const res = await fetch(`/api/documents/${doc.id}/review`, { method: 'POST' })
+      if (!res.ok) throw new Error('Failed to mark as reviewed')
+      onRefresh()
+    } catch (e) {
+      console.error(e)
+      alert('Failed to mark as reviewed. Please try again.')
+    } finally {
+      setReviewing(null)
+    }
+  }
 
   const filtered = category === 'all'
     ? documents
@@ -147,6 +176,8 @@ export function DocumentVault({ dealId, dealType = 'rent', documents, canManage 
             onView={() => handleView(doc)}
             onDownload={() => handleDownload(doc)}
             onDelete={() => handleDelete(doc)}
+            onMarkReviewed={canReview && !doc.reviewed_by ? () => handleMarkReviewed(doc) : undefined}
+            isReviewing={reviewing === doc.id}
             isCreator={canManage}
           />
         ))}

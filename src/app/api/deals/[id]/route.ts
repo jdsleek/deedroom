@@ -21,10 +21,15 @@ export async function GET(request: Request, { params }: { params: Promise<{ id: 
 
   if (!deal) return NextResponse.json({ error: 'Deal not found' }, { status: 404 })
 
+  const profile = await prisma.profile.findUnique({ where: { id: userId }, select: { role: true } })
+  const isAdmin = profile?.role === 'admin'
   const isCreator = deal.createdById === userId
   const isParty = deal.parties.some((p) => p.userId === userId)
+  const isInvitedByEmail = deal.parties.some(
+    (p) => p.inviteEmail && session?.user?.email && p.inviteEmail.toLowerCase() === session.user.email.toLowerCase()
+  )
 
-  if (!isCreator && !isParty) {
+  if (!isCreator && !isParty && !isInvitedByEmail && !isAdmin) {
     return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
   }
 
@@ -48,10 +53,24 @@ export async function GET(request: Request, { params }: { params: Promise<{ id: 
     }
   }
 
+  const reviewedByIds = [...new Set(deal.documents.map((d) => d.reviewedById).filter(Boolean))] as string[]
+  const reviewedByProfiles = reviewedByIds.length
+    ? await prisma.profile.findMany({
+        where: { id: { in: reviewedByIds } },
+        select: { id: true, fullName: true },
+      })
+    : []
+  const reviewedByMap = Object.fromEntries(reviewedByProfiles.map((p) => [p.id, p]))
+
   const data = {
     ...dealToApi(deal),
     parties: deal.parties.map((p) => ({ ...partyToApi(p), profile: p.user ? { id: p.user.id, full_name: p.user.fullName } : null })),
-    documents: deal.documents.map(documentToApi),
+    documents: deal.documents.map((d) =>
+      documentToApi({
+        ...d,
+        reviewedByProfile: d.reviewedById ? reviewedByMap[d.reviewedById] : undefined,
+      })
+    ),
     signature_requests: deal.signatureRequests.map(sigRequestToApi),
   }
 

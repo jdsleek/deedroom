@@ -2,8 +2,7 @@ import { auth } from '@/auth'
 import { prisma } from '@/lib/db'
 import { redirect } from 'next/navigation'
 import { SessionProvider } from 'next-auth/react'
-import { AdminSidebar } from './AdminSidebar'
-import { Topbar } from '@/components/layout/Topbar'
+import { AdminShell } from './AdminShell'
 
 export default async function AdminLayout({
   children,
@@ -24,15 +23,7 @@ export default async function AdminLayout({
 
   return (
     <SessionProvider session={session}>
-      <div className="min-h-screen bg-warm-50 flex">
-        <AdminSidebar />
-        <div className="flex-1 flex flex-col min-w-0">
-          <Topbar user={session?.user} />
-          <main className="flex-1 px-4 py-5 lg:px-8 lg:py-6 pb-24 lg:pb-6">
-            {children}
-          </main>
-        </div>
-      </div>
+      <AdminShell user={session?.user}>{children}</AdminShell>
     </SessionProvider>
   )
 }

@@ -19,7 +19,7 @@ export async function GET() {
       prisma.deal.groupBy({ by: ['status'], _count: { id: true } }),
       prisma.document.count(),
       prisma.signatureRequest.count({ where: { signedAt: { not: null } } }),
-      prisma.profile.count({ where: { kycStatus: 'pending' } }),
+      prisma.profile.count({ where: { kycStatus: 'submitted' } }),
     ])
 
     const statusMap = Object.fromEntries(

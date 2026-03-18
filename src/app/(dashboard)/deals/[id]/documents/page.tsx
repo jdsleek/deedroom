@@ -37,6 +37,7 @@ export default function DealDocumentsPage() {
     <DocumentVault
       dealId={deal.id}
       dealType={deal.deal_type}
+      deal={deal}
       documents={(deal.documents ?? []) as DocumentType[]}
       canManage={deal.status !== 'completed' && deal.status !== 'cancelled'}
       onRefresh={refreshDeal}

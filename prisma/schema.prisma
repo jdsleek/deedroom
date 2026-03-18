@@ -64,6 +64,8 @@ model Profile {
   companyName  String?  @map("company_name")
   kycStatus    String   @default("pending") @map("kyc_status")
   kycData      Json     @default("{}") @map("kyc_data")
+  flagged      Boolean  @default(false)
+  flagReason   String?  @map("flag_reason")
   avatarUrl    String?  @map("avatar_url")
   createdAt    DateTime @default(now()) @map("created_at")
   updatedAt    DateTime @updatedAt @map("updated_at")
@@ -103,28 +105,30 @@ model Deal {
   signatureRequests SignatureRequest[]
   auditLogs        AuditLog[]
   payments         Payment[]
+  disputes         Dispute[]
 
   @@index([createdById])
   @@index([status])
 }
 
 model DealParty {
-  id          String    @id @default(uuid())
-  dealId      String    @map("deal_id")
-  userId      String?   @map("user_id")
-  role        String
-  signOrder   Int?      @map("sign_order")
-  status      String    @default("invited")
-  inviteName  String    @map("invite_name")
-  invitePhone String?   @map("invite_phone")
-  inviteEmail String?   @map("invite_email")
-  inviteToken String    @unique @default(cuid())
-  invitedAt   DateTime  @default(now()) @map("invited_at")
-  viewedAt    DateTime? @map("viewed_at")
-  signedAt    DateTime? @map("signed_at")
-  declinedAt  DateTime? @map("declined_at")
-  createdAt   DateTime  @default(now()) @map("created_at")
-  updatedAt   DateTime  @updatedAt @map("updated_at")
+  id             String    @id @default(uuid())
+  dealId         String    @map("deal_id")
+  userId         String?   @map("user_id")
+  role           String
+  signOrder      Int?      @map("sign_order")
+  status         String    @default("invited")
+  inviteName     String    @map("invite_name")
+  invitePhone    String?   @map("invite_phone")
+  inviteEmail    String?   @map("invite_email")
+  inviteToken    String    @unique @default(cuid())
+  requiredFields Json?     @map("required_fields") // { signature, initials, date } booleans
+  invitedAt      DateTime  @default(now()) @map("invited_at")
+  viewedAt       DateTime? @map("viewed_at")
+  signedAt       DateTime? @map("signed_at")
+  declinedAt     DateTime? @map("declined_at")
+  createdAt      DateTime  @default(now()) @map("created_at")
+  updatedAt      DateTime  @updatedAt @map("updated_at")
 
   deal        Deal     @relation(fields: [dealId], references: [id], onDelete: Cascade)
   user        Profile? @relation(fields: [userId], references: [id], onDelete: SetNull)
@@ -136,21 +140,23 @@ model DealParty {
 }
 
 model Document {
-  id          String    @id @default(uuid())
-  dealId      String    @map("deal_id")
-  name        String
-  filePath    String    @map("file_path")
-  fileSize    BigInt?   @map("file_size")
-  fileType    String?   @map("file_type")
-  category    String    @default("other")
-  permission  String    @default("view_only")
-  watermark   Boolean   @default(true)
-  uploadedById String   @map("uploaded_by")
-  expiresAt   DateTime? @map("expires_at")
-  isExecuted  Boolean   @default(false) @map("is_executed")
-  version     Int       @default(1)
-  createdAt   DateTime  @default(now()) @map("created_at")
-  updatedAt   DateTime  @updatedAt @map("updated_at")
+  id           String    @id @default(uuid())
+  dealId       String    @map("deal_id")
+  name         String
+  filePath     String    @map("file_path")
+  fileSize     BigInt?   @map("file_size")
+  fileType     String?   @map("file_type")
+  category     String    @default("other")
+  permission   String    @default("view_only")
+  watermark    Boolean   @default(true)
+  uploadedById String    @map("uploaded_by")
+  expiresAt    DateTime? @map("expires_at")
+  isExecuted   Boolean   @default(false) @map("is_executed")
+  reviewedById String?   @map("reviewed_by")
+  reviewedAt   DateTime? @map("reviewed_at")
+  version      Int       @default(1)
+  createdAt    DateTime  @default(now()) @map("created_at")
+  updatedAt    DateTime  @updatedAt @map("updated_at")
 
   deal        Deal     @relation(fields: [dealId], references: [id], onDelete: Cascade)
   uploadedBy  Profile  @relation(fields: [uploadedById], references: [id], onDelete: Restrict)
@@ -221,4 +227,36 @@ model Payment {
   deal        Deal     @relation(fields: [dealId], references: [id], onDelete: Cascade)
 
   @@index([dealId])
+}
+
+model Dispute {
+  id          String    @id @default(uuid())
+  dealId      String    @map("deal_id")
+  raisedById  String    @map("raised_by")
+  reason      String
+  status      String    @default("open") // open, investigating, resolved, dismissed
+  resolution  String?
+  resolvedById String?  @map("resolved_by")
+  resolvedAt  DateTime? @map("resolved_at")
+  createdAt   DateTime  @default(now()) @map("created_at")
+  updatedAt   DateTime  @updatedAt @map("updated_at")
+
+  deal        Deal     @relation(fields: [dealId], references: [id], onDelete: Cascade)
+
+  @@index([dealId])
+  @@index([status])
+}
+
+model Notification {
+  id        String   @id @default(uuid())
+  userId    String   @map("user_id")
+  type      String   // invite, signature, payment, deal_update, kyc
+  title     String
+  message   String
+  link      String?
+  read      Boolean  @default(false)
+  createdAt DateTime @default(now()) @map("created_at")
+
+  @@index([userId, read])
+  @@index([createdAt(sort: Desc)])
 }

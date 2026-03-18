@@ -39,22 +39,143 @@ export async function applyDraftWatermark(
   return doc.save();
 }
 
+export interface SignatureImageData {
+  partyName: string;
+  signatureData: string; // JSON: { signature?, initials?, date? } or legacy base64 string
+}
+
 export interface SealParams {
   pdfBytes: ArrayBuffer;
   deal: Deal;
   parties: DealParty[];
   auditLogs: AuditLog[];
   sealedAt: Date;
+  signatureImages?: SignatureImageData[];
 }
 
 /**
  * Seal executed copy — appends certificate page with signatories and audit trail
  */
 export async function sealExecutedPdf(params: SealParams): Promise<Uint8Array> {
-  const { pdfBytes, deal, parties, auditLogs, sealedAt } = params;
+  const { pdfBytes, deal, parties, auditLogs, sealedAt, signatureImages } = params;
   const doc = await PDFDocument.load(pdfBytes);
   const font = await doc.embedFont(StandardFonts.Helvetica);
   const fontBold = await doc.embedFont(StandardFonts.HelveticaBold);
+
+  // Stamp signature/initials/date onto the last original page before appending cert
+  if (signatureImages?.length) {
+    const lastPage = doc.getPages()[doc.getPageCount() - 1];
+    const { width } = lastPage.getSize();
+    const sigWidth = 100;
+    const sigHeight = 50;
+    const initWidth = 60;
+    const initHeight = 24;
+    const labelSize = 7;
+    const gap = 16;
+    const baseY = 60;
+
+    for (let i = 0; i < signatureImages.length; i++) {
+      const { partyName, signatureData } = signatureImages[i];
+      const colWidth = sigWidth + gap;
+      const startX = 50 + i * (colWidth + 40);
+      let y = baseY;
+
+      let parsed: { signature?: string; initials?: string; date?: string } | null = null;
+      if (signatureData.startsWith("{")) {
+        try {
+          parsed = JSON.parse(signatureData) as { signature?: string; initials?: string; date?: string };
+        } catch {
+          parsed = null;
+        }
+      }
+      const sigImg = parsed?.signature ?? (parsed ? undefined : signatureData);
+      const initImg = parsed?.initials;
+      const dateStr = parsed?.date;
+
+      lastPage.drawText(partyName, {
+        x: startX,
+        y,
+        size: labelSize,
+        font,
+        color: rgb(0.3, 0.3, 0.3),
+      });
+      y -= labelSize + 4;
+
+      lastPage.drawLine({
+        start: { x: startX, y },
+        end: { x: startX + sigWidth, y },
+        thickness: 0.5,
+        color: rgb(0.7, 0.7, 0.7),
+      });
+      y -= 4;
+
+      if (sigImg && typeof sigImg === "string") {
+        try {
+          const base64 = sigImg.replace(/^data:image\/\w+;base64,/, "");
+          const imgBytes = Uint8Array.from(atob(base64), (c) => c.charCodeAt(0));
+          const pngImage = await doc.embedPng(imgBytes);
+          const scaled = pngImage.scaleToFit(sigWidth, sigHeight);
+          lastPage.drawImage(pngImage, {
+            x: startX + (sigWidth - scaled.width) / 2,
+            y: y - scaled.height,
+            width: scaled.width,
+            height: scaled.height,
+          });
+        } catch {
+          lastPage.drawText("[signature]", {
+            x: startX + 20,
+            y: y - 12,
+            size: 9,
+            font,
+            color: rgb(0.5, 0.5, 0.5),
+          });
+        }
+      }
+      y -= sigHeight + 8;
+
+      if (initImg && typeof initImg === "string") {
+        try {
+          const base64 = initImg.replace(/^data:image\/\w+;base64,/, "");
+          const imgBytes = Uint8Array.from(atob(base64), (c) => c.charCodeAt(0));
+          const pngImage = await doc.embedPng(imgBytes);
+          const scaled = pngImage.scaleToFit(initWidth, initHeight);
+          lastPage.drawText("Initials:", {
+            x: startX,
+            y,
+            size: 6,
+            font,
+            color: rgb(0.4, 0.4, 0.4),
+          });
+          lastPage.drawImage(pngImage, {
+            x: startX,
+            y: y - scaled.height - 2,
+            width: scaled.width,
+            height: scaled.height,
+          });
+          y -= initHeight + 14;
+        } catch {
+          lastPage.drawText("Initials: —", {
+            x: startX,
+            y,
+            size: 6,
+            font,
+            color: rgb(0.5, 0.5, 0.5),
+          });
+          y -= 12;
+        }
+      }
+
+      if (dateStr) {
+        lastPage.drawText(`Date: ${dateStr}`, {
+          x: startX,
+          y: y - 2,
+          size: 7,
+          font,
+          color: rgb(0.2, 0.45, 0.45),
+        });
+      }
+    }
+  }
 
   // Add certificate page
   const certPage = doc.addPage([595, 842]);

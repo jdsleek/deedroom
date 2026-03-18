@@ -1,7 +1,7 @@
 'use client'
 
 import { useEffect, useState, useCallback } from 'react'
-import { Search, ChevronLeft, ChevronRight, X } from 'lucide-react'
+import { Search, ChevronLeft, ChevronRight, X, Flag, FlagOff } from 'lucide-react'
 import { Badge } from '@/components/ui/Badge'
 import { Button } from '@/components/ui/Button'
 
@@ -14,6 +14,8 @@ interface AdminUser {
   kycStatus: string
   companyName: string | null
   avatarUrl: string | null
+  flagged: boolean
+  flagReason: string | null
   createdAt: string
   userName: string | null
   userImage: string | null
@@ -44,7 +46,10 @@ export default function AdminUsersPage() {
   const [selectedUser, setSelectedUser] = useState<AdminUser | null>(null)
   const [editRole, setEditRole] = useState('')
   const [editKyc, setEditKyc] = useState('')
+  const [editFlagged, setEditFlagged] = useState(false)
+  const [editFlagReason, setEditFlagReason] = useState('')
   const [saving, setSaving] = useState(false)
+  const [flagging, setFlagging] = useState<string | null>(null)
 
   const fetchUsers = useCallback(async () => {
     setLoading(true)
@@ -67,6 +72,8 @@ export default function AdminUsersPage() {
     if (selectedUser) {
       setEditRole(selectedUser.role)
       setEditKyc(selectedUser.kycStatus)
+      setEditFlagged(selectedUser.flagged)
+      setEditFlagReason(selectedUser.flagReason ?? '')
     }
   }, [selectedUser])
 
@@ -74,10 +81,13 @@ export default function AdminUsersPage() {
     if (!selectedUser) return
     setSaving(true)
     try {
+      const body: Record<string, unknown> = { userId: selectedUser.id, role: editRole, kycStatus: editKyc }
+      if (editFlagged !== selectedUser.flagged) body.flagged = editFlagged
+      if (editFlagReason !== (selectedUser.flagReason ?? '')) body.flagReason = editFlagReason
       const res = await fetch('/api/admin/users', {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ userId: selectedUser.id, role: editRole, kycStatus: editKyc }),
+        body: JSON.stringify(body),
       })
       if (res.ok) {
         setSelectedUser(null)
@@ -87,6 +97,28 @@ export default function AdminUsersPage() {
       console.error(e)
     } finally {
       setSaving(false)
+    }
+  }
+
+  const handleFlagToggle = async (user: AdminUser) => {
+    setFlagging(user.id)
+    try {
+      const body: { userId: string; flagged: boolean; flagReason?: string | null } = {
+        userId: user.id,
+        flagged: !user.flagged,
+      }
+      if (!user.flagged) body.flagReason = user.flagReason ?? 'Flagged by admin'
+      else body.flagReason = null
+      const res = await fetch('/api/admin/users', {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(body),
+      })
+      if (res.ok) fetchUsers()
+    } catch (e) {
+      console.error(e)
+    } finally {
+      setFlagging(null)
     }
   }
 
@@ -144,7 +176,14 @@ export default function AdminUsersPage() {
                           </span>
                         </div>
                         <div className="min-w-0">
-                          <p className="font-medium text-warm-900 truncate">{user.fullName}</p>
+                          <div className="flex items-center gap-2 flex-wrap">
+                            <p className="font-medium text-warm-900 truncate">{user.fullName}</p>
+                            {user.flagged && (
+                              <span className="inline-flex items-center rounded-full bg-red-100 px-2 py-0.5 text-xs font-semibold text-red-700">
+                                Flagged
+                              </span>
+                            )}
+                          </div>
                           <p className="text-warm-400 text-xs truncate">{user.email ?? user.phone ?? '—'}</p>
                         </div>
                       </div>
@@ -159,13 +198,28 @@ export default function AdminUsersPage() {
                       {new Date(user.createdAt).toLocaleDateString('en-NG', { day: 'numeric', month: 'short', year: 'numeric' })}
                     </td>
                     <td className="px-5 py-3.5 text-right">
-                      <button
-                        type="button"
-                        onClick={() => setSelectedUser(user)}
-                        className="text-coral-500 hover:text-coral-600 text-sm font-semibold transition-colors"
-                      >
-                        Edit
-                      </button>
+                      <div className="flex items-center justify-end gap-2">
+                        <button
+                          type="button"
+                          onClick={() => handleFlagToggle(user)}
+                          disabled={!!flagging}
+                          className={`p-1.5 rounded-lg transition-all ${
+                            user.flagged
+                              ? 'text-red-500 hover:text-red-700 hover:bg-red-50'
+                              : 'text-warm-400 hover:text-warm-700 hover:bg-warm-50'
+                          }`}
+                          title={user.flagged ? 'Unflag user' : 'Flag user'}
+                        >
+                          {user.flagged ? <FlagOff className="h-4 w-4" /> : <Flag className="h-4 w-4" />}
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => setSelectedUser(user)}
+                          className="text-coral-500 hover:text-coral-600 text-sm font-semibold transition-colors"
+                        >
+                          Edit
+                        </button>
+                      </div>
                     </td>
                   </tr>
                 ))
@@ -249,6 +303,27 @@ export default function AdminUsersPage() {
                     <option key={s} value={s}>{s}</option>
                   ))}
                 </select>
+              </div>
+
+              <div>
+                <label className="flex items-center gap-2 text-sm font-medium text-warm-700 mb-1.5">
+                  <input
+                    type="checkbox"
+                    checked={editFlagged}
+                    onChange={(e) => setEditFlagged(e.target.checked)}
+                    className="rounded border-warm-300 text-coral-500 focus:ring-coral-500/30"
+                  />
+                  Flagged
+                </label>
+                {editFlagged && (
+                  <textarea
+                    value={editFlagReason}
+                    onChange={(e) => setEditFlagReason(e.target.value)}
+                    placeholder="Flag reason (optional)"
+                    rows={2}
+                    className="mt-1.5 w-full px-3.5 py-2 rounded-xl border border-warm-200 bg-white text-warm-800 text-sm focus:outline-none focus:ring-2 focus:ring-coral-500/30 focus:border-coral-400 resize-none"
+                  />
+                )}
               </div>
             </div>
             <div className="flex gap-3 p-5 border-t border-warm-100">

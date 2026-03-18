@@ -3,7 +3,7 @@
 import { type Document } from '@/types'
 import { Badge } from '@/components/ui/Badge'
 import { formatFileSize } from '@/lib/utils'
-import { FileText, Download, Eye, Trash2 } from 'lucide-react'
+import { FileText, Download, Eye, Trash2, CheckCircle2 } from 'lucide-react'
 
 const DOC_CATEGORY_LABELS: Record<string, string> = {
   id: 'ID Document',
@@ -21,10 +21,12 @@ interface DocumentCardProps {
   onView?: () => void
   onDownload?: () => void
   onDelete?: () => void
+  onMarkReviewed?: () => void
+  isReviewing?: boolean
   isCreator?: boolean
 }
 
-export function DocumentCard({ doc, onView, onDownload, onDelete, isCreator }: DocumentCardProps) {
+export function DocumentCard({ doc, onView, onDownload, onDelete, onMarkReviewed, isReviewing, isCreator }: DocumentCardProps) {
   const canDownload = doc.permission === 'download'
 
   return (
@@ -42,12 +44,29 @@ export function DocumentCard({ doc, onView, onDownload, onDelete, isCreator }: D
             <Badge variant={doc.is_executed ? 'success' : 'secondary'} className="text-xs">
               {doc.is_executed ? 'Executed' : 'Draft'}
             </Badge>
+            {doc.reviewed_by && (
+              <Badge variant="outline" className="text-xs text-coral-600 border-coral-200 bg-coral-50">
+                Reviewed by {doc.reviewed_by.full_name ?? 'Unknown'}
+              </Badge>
+            )}
             {doc.file_size != null && (
               <span className="text-xs text-warm-500">{formatFileSize(doc.file_size)}</span>
             )}
           </div>
         </div>
         <div className="flex shrink-0 gap-1">
+          {onMarkReviewed && (
+            <button
+              type="button"
+              onClick={onMarkReviewed}
+              disabled={isReviewing}
+              aria-label="Mark as Reviewed"
+              className="rounded-lg p-2 text-coral-500 hover:bg-coral-50 hover:text-coral-600 transition-colors disabled:opacity-50"
+              title="Mark as Reviewed"
+            >
+              <CheckCircle2 className="size-4" />
+            </button>
+          )}
           <button
             type="button"
             onClick={onView}

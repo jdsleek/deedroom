@@ -19,6 +19,7 @@ export function PaymentList({ payments, deal, canManage, onRefresh }: PaymentLis
   const [showAddModal, setShowAddModal] = useState(false)
   const [markingId, setMarkingId] = useState<string | null>(null)
   const [deletingId, setDeletingId] = useState<string | null>(null)
+  const [payingId, setPayingId] = useState<string | null>(null)
 
   const totalPaid = payments
     .filter((p) => p.status === 'paid')
@@ -61,6 +62,24 @@ export function PaymentList({ payments, deal, canManage, onRefresh }: PaymentLis
 
   const handleDownloadReceipt = (paymentId: string) => {
     window.open(`/api/payments/${paymentId}/receipt`, '_blank')
+  }
+
+  const handlePayWithPaystack = async (paymentId: string) => {
+    setPayingId(paymentId)
+    try {
+      const res = await fetch('/api/payments/initialize', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ paymentId }),
+      })
+      const json = await res.json()
+      if (!res.ok) throw new Error(json.error ?? 'Failed to initialize payment')
+      window.location.href = json.data.authorization_url
+    } catch (e) {
+      alert(e instanceof Error ? e.message : 'Payment initialization failed')
+    } finally {
+      setPayingId(null)
+    }
   }
 
   return (
@@ -135,6 +154,15 @@ export function PaymentList({ payments, deal, canManage, onRefresh }: PaymentLis
                   </div>
 
                   <div className="flex shrink-0 items-center gap-2">
+                    {payment.status === 'pending' && (
+                      <Button
+                        size="sm"
+                        onClick={() => handlePayWithPaystack(payment.id)}
+                        isLoading={payingId === payment.id}
+                      >
+                        Pay with Paystack
+                      </Button>
+                    )}
                     {payment.status === 'pending' && canManage && (
                       <Button
                         size="sm"
@@ -175,18 +203,18 @@ export function PaymentList({ payments, deal, canManage, onRefresh }: PaymentLis
         </div>
       )}
 
-      {/* Paystack placeholder */}
-      <Card className="border-dashed border-warm-300 bg-warm-50/50 p-5">
+      {/* Paystack info */}
+      <Card className="border-dashed border-teal-300 bg-teal-50/50 p-5">
         <div className="flex items-start gap-3">
-          <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-warm-100">
-            <svg className="h-5 w-5 text-warm-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
-              <path strokeLinecap="round" strokeLinejoin="round" d="M13.19 8.688a4.5 4.5 0 011.242 7.244l-4.5 4.5a4.5 4.5 0 01-6.364-6.364l1.757-1.757m13.35-.622l1.757-1.757a4.5 4.5 0 00-6.364-6.364l-4.5 4.5a4.5 4.5 0 001.242 7.244" />
+          <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-teal-100">
+            <svg className="h-5 w-5 text-teal-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M2.25 8.25h19.5M2.25 9h19.5m-16.5 5.25h6m-6 2.25h3m-3.75 3h15a2.25 2.25 0 002.25-2.25V6.75A2.25 2.25 0 0019.5 4.5h-15a2.25 2.25 0 00-2.25 2.25v10.5A2.25 2.25 0 004.5 19.5z" />
             </svg>
           </div>
           <div>
-            <p className="text-sm font-medium text-warm-700">Online payments coming soon</p>
+            <p className="text-sm font-medium text-teal-800">Online payments via Paystack</p>
             <p className="mt-0.5 text-xs text-warm-500">
-              Paystack and Flutterwave integration will allow parties to pay directly. For now, record payments manually above.
+              Pending payments can be paid online using Paystack. Click &quot;Pay with Paystack&quot; on any pending payment above.
             </p>
           </div>
         </div>

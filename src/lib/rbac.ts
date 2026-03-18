@@ -3,6 +3,7 @@ export type Action =
   | 'invite_party'
   | 'upload_document'
   | 'sign_document'
+  | 'review_document'
   | 'view_audit'
   | 'export_evidence'
   | 'manage_users'
@@ -14,7 +15,7 @@ const ROLE_PERMISSIONS: Record<string, Action[]> = {
   tenant: ['upload_document', 'sign_document', 'view_audit'],
   buyer: ['upload_document', 'sign_document', 'view_audit'],
   developer: ['create_deal', 'invite_party', 'upload_document', 'sign_document', 'view_audit', 'export_evidence'],
-  lawyer: ['upload_document', 'sign_document', 'view_audit', 'export_evidence'],
+  lawyer: ['upload_document', 'sign_document', 'review_document', 'view_audit', 'export_evidence'],
   admin: ['create_deal', 'invite_party', 'upload_document', 'sign_document', 'view_audit', 'export_evidence', 'manage_users', 'view_admin'],
 }
 

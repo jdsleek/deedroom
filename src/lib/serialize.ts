@@ -69,6 +69,7 @@ export function partyToApi(p: {
   invitePhone: string | null
   inviteEmail: string | null
   inviteToken: string
+  requiredFields?: unknown
   invitedAt: Date
   viewedAt: Date | null
   signedAt: Date | null
@@ -77,6 +78,7 @@ export function partyToApi(p: {
   updatedAt: Date
   [k: string]: unknown
 }) {
+  const rf = p.requiredFields as { signature?: boolean; initials?: boolean; date?: boolean } | null | undefined
   return {
     id: p.id,
     deal_id: p.dealId,
@@ -88,6 +90,7 @@ export function partyToApi(p: {
     invite_phone: p.invitePhone,
     invite_email: p.inviteEmail,
     invite_token: p.inviteToken,
+    required_fields: rf ?? { signature: true, initials: true, date: true },
     invited_at: p.invitedAt.toISOString(),
     viewed_at: p.viewedAt?.toISOString() ?? null,
     signed_at: p.signedAt?.toISOString() ?? null,
@@ -110,9 +113,12 @@ export function documentToApi(d: {
   uploadedById: string
   expiresAt: Date | null
   isExecuted: boolean
+  reviewedById?: string | null
+  reviewedAt?: Date | null
   version: number
   createdAt: Date
   updatedAt: Date
+  reviewedByProfile?: { id: string; fullName: string } | null
   [k: string]: unknown
 }) {
   return {
@@ -128,6 +134,10 @@ export function documentToApi(d: {
     uploaded_by: d.uploadedById,
     expires_at: d.expiresAt?.toISOString() ?? null,
     is_executed: d.isExecuted,
+    reviewed_by: d.reviewedById
+      ? { id: d.reviewedById, full_name: d.reviewedByProfile?.fullName ?? null }
+      : null,
+    reviewed_at: d.reviewedAt?.toISOString() ?? null,
     version: d.version,
     created_at: d.createdAt.toISOString(),
     updated_at: d.updatedAt.toISOString(),

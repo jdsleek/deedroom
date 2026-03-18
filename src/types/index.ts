@@ -79,6 +79,12 @@ export interface Deal {
   payments?: Payment[];
 }
 
+export interface RequiredFields {
+  signature: boolean;
+  initials: boolean;
+  date: boolean;
+}
+
 export interface DealParty {
   id: string;
   deal_id: string;
@@ -90,6 +96,7 @@ export interface DealParty {
   invite_phone: string | null;
   invite_email: string | null;
   invite_token: string;
+  required_fields?: RequiredFields;
   invited_at: string;
   viewed_at: string | null;
   signed_at: string | null;
@@ -112,6 +119,8 @@ export interface Document {
   uploaded_by: string;
   expires_at: string | null;
   is_executed: boolean;
+  reviewed_by: { id: string; full_name: string | null } | null;
+  reviewed_at: string | null;
   version: number;
   created_at: string;
   updated_at: string;
@@ -177,7 +186,7 @@ export const PAYMENT_STATUS_CONFIG = {
 export const PAYMENT_METHODS = [
   { value: 'bank_transfer', label: 'Bank Transfer' },
   { value: 'cash', label: 'Cash' },
-  { value: 'paystack', label: 'Paystack (coming soon)', disabled: true },
+  { value: 'paystack', label: 'Paystack' },
   { value: 'flutterwave', label: 'Flutterwave (coming soon)', disabled: true },
 ] as const
 

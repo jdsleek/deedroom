@@ -1,6 +1,7 @@
 'use client'
 
 import { useEffect, useState, useCallback } from 'react'
+import Link from 'next/link'
 import { Search, ChevronLeft, ChevronRight } from 'lucide-react'
 import { Badge } from '@/components/ui/Badge'
 
@@ -123,10 +124,13 @@ export default function AdminDealsPage() {
                 data?.deals.map((deal) => (
                   <tr key={deal.id} className="border-b border-warm-50 hover:bg-warm-50/40 transition-colors">
                     <td className="px-5 py-3.5">
-                      <div className="min-w-0">
-                        <p className="font-medium text-warm-900 truncate">{deal.title}</p>
-                        <p className="text-warm-400 text-xs truncate">{deal.propertyAddress}</p>
-                      </div>
+                      <Link
+                        href={`/deals/${deal.id}`}
+                        className="block min-w-0 group"
+                      >
+                        <p className="font-medium text-warm-900 truncate group-hover:text-coral-600 transition-colors">{deal.title}</p>
+                        <p className="text-warm-400 text-xs truncate group-hover:text-coral-500 transition-colors">{deal.propertyAddress}</p>
+                      </Link>
                     </td>
                     <td className="px-5 py-3.5 hidden sm:table-cell">
                       <Badge variant={statusBadgeVariant(deal.status)}>{deal.status}</Badge>

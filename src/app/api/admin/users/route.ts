@@ -42,6 +42,8 @@ export async function GET(req: NextRequest) {
         kycStatus: u.kycStatus,
         companyName: u.companyName,
         avatarUrl: u.avatarUrl,
+        flagged: u.flagged,
+        flagReason: u.flagReason,
         createdAt: u.createdAt.toISOString(),
         userName: u.user?.name ?? null,
         userImage: u.user?.image ?? null,
@@ -63,15 +65,17 @@ export async function PATCH(req: NextRequest) {
     await requireAdmin()
 
     const body = await req.json()
-    const { userId, role, kycStatus } = body
+    const { userId, role, kycStatus, flagged, flagReason } = body
 
     if (!userId) {
       return NextResponse.json({ error: 'userId is required' }, { status: 400 })
     }
 
-    const data: Record<string, string> = {}
+    const data: Record<string, string | boolean | null> = {}
     if (role) data.role = role
     if (kycStatus) data.kycStatus = kycStatus
+    if (typeof flagged === 'boolean') data.flagged = flagged
+    if (flagReason !== undefined) data.flagReason = String(flagReason ?? '').trim() || null
 
     if (Object.keys(data).length === 0) {
       return NextResponse.json({ error: 'Nothing to update' }, { status: 400 })
@@ -86,6 +90,8 @@ export async function PATCH(req: NextRequest) {
       id: updated.id,
       role: updated.role,
       kycStatus: updated.kycStatus,
+      flagged: updated.flagged,
+      flagReason: updated.flagReason,
     })
   } catch (e: unknown) {
     const msg = e instanceof Error ? e.message : 'Server error'

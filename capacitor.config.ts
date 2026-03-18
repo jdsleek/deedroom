@@ -5,7 +5,7 @@ const config: CapacitorConfig = {
   appName: 'SignNest',
   webDir: 'out',
   server: {
-    url: process.env.CAPACITOR_SERVER_URL,
+    ...(process.env.CAPACITOR_SERVER_URL ? { url: process.env.CAPACITOR_SERVER_URL } : {}),
     cleartext: true,
   },
   ios: {

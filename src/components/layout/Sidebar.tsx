@@ -1,5 +1,6 @@
 'use client'
 
+import { useEffect, useState } from 'react'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { cn } from '@/lib/utils'
@@ -14,6 +15,14 @@ const navItems = [
 
 export function Sidebar() {
   const pathname = usePathname()
+  const [isAdmin, setIsAdmin] = useState(false)
+
+  useEffect(() => {
+    fetch('/api/profile')
+      .then((r) => r.json())
+      .then(({ data }) => setIsAdmin(data?.role === 'admin'))
+      .catch(() => setIsAdmin(false))
+  }, [])
 
   return (
     <aside className="hidden lg:flex w-[260px] min-h-screen flex-col bg-white border-r border-warm-200 shrink-0">
@@ -47,20 +56,22 @@ export function Sidebar() {
           )
         })}
 
-        <div className="pt-3 mt-3 border-t border-warm-100">
-          <Link
-            href="/admin"
-            className={cn(
-              'flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-[15px] font-medium transition-all duration-150',
-              pathname.startsWith('/admin')
-                ? 'bg-coral-50 text-coral-600'
-                : 'text-warm-500 hover:bg-warm-50 hover:text-warm-800'
-            )}
-          >
-            <Shield className={cn('h-[20px] w-[20px]', pathname.startsWith('/admin') ? 'text-coral-500' : 'text-warm-400')} />
-            <span>Admin</span>
-          </Link>
-        </div>
+        {isAdmin && (
+          <div className="pt-3 mt-3 border-t border-warm-100">
+            <Link
+              href="/admin"
+              className={cn(
+                'flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-[15px] font-medium transition-all duration-150',
+                pathname.startsWith('/admin')
+                  ? 'bg-coral-50 text-coral-600'
+                  : 'text-warm-500 hover:bg-warm-50 hover:text-warm-800'
+              )}
+            >
+              <Shield className={cn('h-[20px] w-[20px]', pathname.startsWith('/admin') ? 'text-coral-500' : 'text-warm-400')} />
+              <span>Admin</span>
+            </Link>
+          </div>
+        )}
       </nav>
 
       <div className="p-4 border-t border-warm-100">

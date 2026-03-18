@@ -3,30 +3,48 @@ import { hash } from 'bcryptjs'
 
 const prisma = new PrismaClient()
 
+const TEST_USERS = [
+  { email: 'test@signnest.local', name: 'Dev User', role: 'realtor', phone: '+2348012345678' },
+  { email: 'landlord@signnest.local', name: 'Mrs Adebayo', role: 'landlord', phone: '+2348023456789' },
+  { email: 'tenant@signnest.local', name: 'Chinedu Okafor', role: 'tenant', phone: '+2348034567890' },
+  { email: 'lawyer@signnest.local', name: 'Barrister Eze', role: 'lawyer', phone: '+2348045678901' },
+  { email: 'admin@signnest.local', name: 'Admin User', role: 'admin', phone: '+2348056789012' },
+]
+
 async function main() {
-  const email = 'test@signnest.local'
   const password = 'password123'
-  const existing = await prisma.user.findUnique({ where: { email } })
-  if (existing) {
-    console.log('Seed user already exists:', email)
-    return
-  }
   const hashed = await hash(password, 10)
-  const user = await prisma.user.create({
-    data: {
-      email,
-      name: 'Dev User',
-      password: hashed,
-    },
-  })
-  await prisma.profile.create({
-    data: {
-      id: user.id,
-      fullName: 'Dev User',
-      email,
-    },
-  })
-  console.log('Created dev user:', email, '| password:', password)
+
+  for (const u of TEST_USERS) {
+    const existing = await prisma.user.findUnique({ where: { email: u.email } })
+    if (existing) {
+      console.log('  exists:', u.email, `(${u.role})`)
+      continue
+    }
+
+    const user = await prisma.user.create({
+      data: {
+        email: u.email,
+        name: u.name,
+        password: hashed,
+        phone: u.phone,
+      },
+    })
+
+    await prisma.profile.create({
+      data: {
+        id: user.id,
+        fullName: u.name,
+        email: u.email,
+        phone: u.phone,
+        role: u.role,
+      },
+    })
+
+    console.log('  created:', u.email, `(${u.role})`)
+  }
+
+  console.log('\nAll test users ready. Password for all: password123')
 }
 
 main()

@@ -17,6 +17,7 @@ const auditActions = [
   "document_viewed",
   "document_downloaded",
   "document_deleted",
+  "document_reviewed",
   "otp_requested",
   "otp_verified",
   "otp_failed",
@@ -25,6 +26,9 @@ const auditActions = [
   "payment_created",
   "payment_updated",
   "payment_deleted",
+  "payment_verified",
+  "dispute_raised",
+  "dispute_resolved",
 ] as const;
 
 export type AuditAction = (typeof auditActions)[number];

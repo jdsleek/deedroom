@@ -6,6 +6,7 @@ import { applyDraftWatermark } from "@/lib/pdf";
 import { saveFile } from "@/lib/storage";
 import { documentToApi } from "@/lib/serialize";
 import { type DocCategory } from "@/types";
+import { can } from "@/lib/rbac";
 
 const ALLOWED_TYPES = [
   "application/pdf",
@@ -21,6 +22,11 @@ export async function POST(request: NextRequest) {
     const session = await auth();
     const userId = (session?.user as { id?: string })?.id;
     if (!userId) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+
+    const profile = await prisma.profile.findUnique({ where: { id: userId }, select: { role: true } });
+    if (!profile || !can(profile.role, "upload_document")) {
+      return NextResponse.json({ error: "Insufficient permissions" }, { status: 403 });
+    }
 
     const formData = await request.formData();
     const dealId = formData.get("deal_id") as string;

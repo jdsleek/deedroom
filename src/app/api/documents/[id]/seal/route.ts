@@ -30,6 +30,10 @@ export async function POST(
     const parties = await prisma.dealParty.findMany({
       where: { dealId: doc.dealId, status: 'signed' },
     })
+    const sigRequests = await prisma.signatureRequest.findMany({
+      where: { documentId: doc.id, signedAt: { not: null } },
+      include: { party: true },
+    })
     const auditLogs = await prisma.auditLog.findMany({
       where: { dealId: doc.dealId },
       orderBy: { createdAt: 'asc' },
@@ -50,12 +54,20 @@ export async function POST(
       created_at: l.createdAt.toISOString(),
     })) as AuditLog[]
 
+    const signatureImages = sigRequests
+      .filter(sr => sr.signatureData && sr.signedAt)
+      .map(sr => ({
+        partyName: parties.find(p => p.id === sr.partyId)?.inviteName ?? 'Unknown',
+        signatureData: sr.signatureData!,
+      }))
+
     const sealed = await sealExecutedPdf({
       pdfBytes,
       deal: dealApi,
       parties: partiesApi,
       auditLogs: auditLogsApi,
       sealedAt: new Date(),
+      signatureImages,
     })
 
     const sealedPath = `${doc.dealId}/${crypto.randomUUID()}-executed-${doc.name}`

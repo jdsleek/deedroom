@@ -42,13 +42,17 @@ function wrapText(text: string, font: Awaited<ReturnType<PDFDocument['embedFont'
   return lines;
 }
 
+function sanitizeForWinAnsi(str: string): string {
+  return str.replace(/₦/g, 'NGN ').replace(/[^\x00-\xFF]/g, '');
+}
+
 async function textToPdf(text: string): Promise<Uint8Array> {
   const doc = await PDFDocument.create();
   const font = await doc.embedFont(StandardFonts.Helvetica);
   const fontBold = await doc.embedFont(StandardFonts.HelveticaBold);
   const fontSize = 11;
 
-  const allLines = wrapText(text, font, fontSize, USABLE_WIDTH);
+  const allLines = wrapText(sanitizeForWinAnsi(text), font, fontSize, USABLE_WIDTH);
 
   let page = doc.addPage([PAGE_WIDTH, PAGE_HEIGHT]);
   let y = PAGE_HEIGHT - 60;

@@ -4,6 +4,7 @@ import { NextResponse } from 'next/server'
 import { z } from 'zod'
 import { logAudit } from '@/lib/audit'
 import { serializeDeal } from '@/lib/serialize'
+import { can } from '@/lib/rbac'
 
 const CreateDealSchema = z.object({
   deal_type: z.enum(['rent', 'sale']),
@@ -30,6 +31,15 @@ export async function GET(request: Request) {
   const status = searchParams.get('status')
   const type = searchParams.get('type')
   const search = searchParams.get('search')
+  const sort = searchParams.get('sort')
+
+  const statusFilter = status === 'active'
+    ? [{ status: { notIn: ['completed', 'cancelled'] } }]
+    : status ? [{ status }] : []
+
+  const orderBy = sort === 'oldest' ? { createdAt: 'asc' as const }
+    : sort === 'title' ? { title: 'asc' as const }
+    : { createdAt: 'desc' as const }
 
   const deals = await prisma.deal.findMany({
     where: {
@@ -38,9 +48,10 @@ export async function GET(request: Request) {
           OR: [
             { createdById: userId },
             { parties: { some: { userId } } },
+            { parties: { some: { inviteEmail: { equals: session?.user?.email ?? '', mode: 'insensitive' } } } },
           ],
         },
-        ...(status ? [{ status }] : []),
+        ...statusFilter,
         ...(type ? [{ dealType: type }] : []),
         ...(search
           ? [{
@@ -55,7 +66,7 @@ export async function GET(request: Request) {
     include: {
       _count: { select: { parties: true, documents: true } },
     },
-    orderBy: { createdAt: 'desc' },
+    orderBy,
   })
 
   const data = deals.map((d) => serializeDeal(d))
@@ -66,6 +77,11 @@ export async function POST(request: Request) {
   const session = await auth()
   const userId = (session?.user as { id?: string })?.id
   if (!userId) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+
+  const profile = await prisma.profile.findUnique({ where: { id: userId }, select: { role: true } })
+  if (!profile || !can(profile.role, 'create_deal')) {
+    return NextResponse.json({ error: 'Insufficient permissions' }, { status: 403 })
+  }
 
   const body = await request.json()
   const parsed = CreateDealSchema.safeParse(body)

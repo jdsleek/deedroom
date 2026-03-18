@@ -1,7 +1,7 @@
 'use client'
 
 import { useEffect, useState, useCallback } from 'react'
-import { ShieldCheck, ShieldX, ChevronLeft, ChevronRight, Eye, X } from 'lucide-react'
+import { ShieldCheck, ShieldX, ChevronLeft, ChevronRight, Eye, X, FileText, User } from 'lucide-react'
 import { Badge } from '@/components/ui/Badge'
 import { Button } from '@/components/ui/Button'
 
@@ -31,19 +31,22 @@ export default function AdminKycPage() {
   const [page, setPage] = useState(1)
   const [selectedUser, setSelectedUser] = useState<KycUser | null>(null)
   const [acting, setActing] = useState(false)
+  const [showDocs, setShowDocs] = useState(false)
 
-  const fetchPending = useCallback(async () => {
+  const fetchUsers = useCallback(async () => {
     setLoading(true)
     try {
       const params = new URLSearchParams({ page: String(page), limit: '20', search: '' })
       const res = await fetch(`/api/admin/users?${params}`)
       const json = await res.json()
-      const filtered = {
-        ...json,
-        users: json.users?.filter((u: KycUser) => u.kycStatus === 'pending') ?? [],
-      }
-      filtered.total = filtered.users.length
-      setData(filtered)
+      const users = json.users ?? []
+      // Sort: submitted first (awaiting review), then others
+      const sorted = [...users].sort((a: KycUser, b: KycUser) => {
+        if (a.kycStatus === 'submitted') return -1
+        if (b.kycStatus === 'submitted') return 1
+        return 0
+      })
+      setData({ ...json, users: sorted })
     } catch (e) {
       console.error(e)
     } finally {
@@ -51,7 +54,7 @@ export default function AdminKycPage() {
     }
   }, [page])
 
-  useEffect(() => { fetchPending() }, [fetchPending])
+  useEffect(() => { fetchUsers() }, [fetchUsers])
 
   const handleAction = async (userId: string, status: 'verified' | 'rejected') => {
     setActing(true)
@@ -63,7 +66,7 @@ export default function AdminKycPage() {
       })
       if (res.ok) {
         setSelectedUser(null)
-        fetchPending()
+        fetchUsers()
       }
     } catch (e) {
       console.error(e)
@@ -86,6 +89,7 @@ export default function AdminKycPage() {
               <tr className="border-b border-warm-100 bg-warm-50/50">
                 <th className="text-left px-5 py-3.5 font-semibold text-warm-600">User</th>
                 <th className="text-left px-5 py-3.5 font-semibold text-warm-600 hidden sm:table-cell">Role</th>
+                <th className="text-left px-5 py-3.5 font-semibold text-warm-600 hidden md:table-cell">KYC Status</th>
                 <th className="text-left px-5 py-3.5 font-semibold text-warm-600 hidden md:table-cell">Company</th>
                 <th className="text-left px-5 py-3.5 font-semibold text-warm-600 hidden lg:table-cell">Joined</th>
                 <th className="text-right px-5 py-3.5 font-semibold text-warm-600">Actions</th>
@@ -95,24 +99,27 @@ export default function AdminKycPage() {
               {loading ? (
                 Array.from({ length: 3 }).map((_, i) => (
                   <tr key={i} className="border-b border-warm-50">
-                    <td colSpan={5} className="px-5 py-4"><div className="h-5 bg-warm-100 rounded animate-pulse" /></td>
+                    <td colSpan={6} className="px-5 py-4"><div className="h-5 bg-warm-100 rounded animate-pulse" /></td>
                   </tr>
                 ))
               ) : data?.users.length === 0 ? (
                 <tr>
-                  <td colSpan={5} className="px-5 py-16 text-center">
+                  <td colSpan={6} className="px-5 py-16 text-center">
                     <div className="flex flex-col items-center gap-2">
                       <div className="w-12 h-12 rounded-xl bg-teal-50 flex items-center justify-center">
                         <ShieldCheck className="h-6 w-6 text-teal-500" />
                       </div>
                       <p className="font-medium text-warm-700">All caught up!</p>
-                      <p className="text-warm-400 text-sm">No pending KYC reviews</p>
+                      <p className="text-warm-400 text-sm">No submitted KYC reviews</p>
                     </div>
                   </td>
                 </tr>
               ) : (
                 data?.users.map((user) => (
-                  <tr key={user.id} className="border-b border-warm-50 hover:bg-warm-50/40 transition-colors">
+                  <tr
+                    key={user.id}
+                    className={`border-b border-warm-50 hover:bg-warm-50/40 transition-colors ${user.kycStatus === 'submitted' ? 'bg-coral-50/60' : ''}`}
+                  >
                     <td className="px-5 py-3.5">
                       <div className="flex items-center gap-3">
                         <div className="w-9 h-9 rounded-full bg-gold-100 flex items-center justify-center shrink-0">
@@ -129,6 +136,9 @@ export default function AdminKycPage() {
                     <td className="px-5 py-3.5 hidden sm:table-cell">
                       <Badge variant="outline">{user.role}</Badge>
                     </td>
+                    <td className="px-5 py-3.5 hidden md:table-cell">
+                      <Badge variant={user.kycStatus === 'submitted' ? 'warning' : 'outline'}>{user.kycStatus}</Badge>
+                    </td>
                     <td className="px-5 py-3.5 text-warm-600 hidden md:table-cell">
                       {user.companyName ?? '—'}
                     </td>
@@ -139,12 +149,13 @@ export default function AdminKycPage() {
                       <div className="flex items-center justify-end gap-2">
                         <button
                           type="button"
-                          onClick={() => setSelectedUser(user)}
+                          onClick={() => { setSelectedUser(user); setShowDocs(false) }}
                           className="p-1.5 rounded-lg text-warm-400 hover:text-warm-700 hover:bg-warm-50 transition-all"
                           title="Review"
                         >
                           <Eye className="h-4 w-4" />
                         </button>
+
                         <button
                           type="button"
                           onClick={() => handleAction(user.id, 'verified')}
@@ -203,7 +214,7 @@ export default function AdminKycPage() {
           <div className="bg-white rounded-2xl shadow-xl w-full max-w-md animate-scale-in">
             <div className="flex items-center justify-between p-5 border-b border-warm-100">
               <h2 className="font-display text-lg font-bold text-warm-900">KYC Review</h2>
-              <button type="button" onClick={() => setSelectedUser(null)} className="text-warm-400 hover:text-warm-600 transition-colors">
+              <button type="button" onClick={() => { setSelectedUser(null); setShowDocs(false) }} className="text-warm-400 hover:text-warm-600 transition-colors">
                 <X className="h-5 w-5" />
               </button>
             </div>
@@ -241,10 +252,78 @@ export default function AdminKycPage() {
                 </div>
               </div>
 
-              <div className="rounded-xl border border-warm-200 p-4 bg-warm-50/50">
-                <p className="text-sm text-warm-500 text-center">
-                  KYC documents uploaded by the user can be viewed from the platform storage.
-                </p>
+              <div className="rounded-xl border border-warm-200 bg-warm-50/50 overflow-hidden">
+                <button
+                  type="button"
+                  onClick={() => setShowDocs((v) => !v)}
+                  className="w-full flex items-center justify-between p-4 text-sm font-medium text-warm-700 hover:bg-warm-100/60 transition-colors"
+                >
+                  <span className="flex items-center gap-2">
+                    <FileText className="h-4 w-4 text-warm-400" />
+                    View Documents
+                  </span>
+                  <span className="text-xs text-warm-400">{showDocs ? 'Hide' : 'Show'}</span>
+                </button>
+                {showDocs && (
+                  <div className="p-4 pt-0 space-y-4">
+                    <div>
+                      <p className="text-xs font-medium text-warm-500 mb-2 flex items-center gap-1.5">
+                        <FileText className="h-3.5 w-3.5" /> ID Document
+                      </p>
+                      <div className="rounded-lg border border-warm-200 overflow-hidden bg-white">
+                        {/* eslint-disable-next-line @next/next/no-img-element */}
+                        <img
+                          src={`/api/admin/kyc/${selectedUser.id}?file=id_document`}
+                          alt="ID Document"
+                          className="w-full max-h-64 object-contain"
+                          onError={(e) => {
+                            const target = e.currentTarget;
+                            target.style.display = 'none';
+                            target.nextElementSibling?.classList.remove('hidden');
+                          }}
+                        />
+                        <div className="hidden p-3 text-center">
+                          <a
+                            href={`/api/admin/kyc/${selectedUser.id}?file=id_document`}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="text-sm text-teal-600 hover:text-teal-700 underline"
+                          >
+                            Open ID Document (PDF)
+                          </a>
+                        </div>
+                      </div>
+                    </div>
+                    <div>
+                      <p className="text-xs font-medium text-warm-500 mb-2 flex items-center gap-1.5">
+                        <User className="h-3.5 w-3.5" /> Selfie
+                      </p>
+                      <div className="rounded-lg border border-warm-200 overflow-hidden bg-white">
+                        {/* eslint-disable-next-line @next/next/no-img-element */}
+                        <img
+                          src={`/api/admin/kyc/${selectedUser.id}?file=selfie`}
+                          alt="Selfie"
+                          className="w-full max-h-64 object-contain"
+                          onError={(e) => {
+                            const target = e.currentTarget;
+                            target.style.display = 'none';
+                            target.nextElementSibling?.classList.remove('hidden');
+                          }}
+                        />
+                        <div className="hidden p-3 text-center">
+                          <a
+                            href={`/api/admin/kyc/${selectedUser.id}?file=selfie`}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="text-sm text-teal-600 hover:text-teal-700 underline"
+                          >
+                            Open Selfie (PDF)
+                          </a>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                )}
               </div>
             </div>
             <div className="flex gap-3 p-5 border-t border-warm-100">

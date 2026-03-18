@@ -6,7 +6,7 @@ import { useSession } from 'next-auth/react'
 import { SignatureStatus } from '@/components/signatures/SignatureStatus'
 import { SignatureFlow } from '@/components/signatures/SignatureFlow'
 import { Button } from '@/components/ui/Button'
-import type { Deal, DealParty, Document, SignatureRequest } from '@/types'
+import type { Deal, DealParty, Document, RequiredFields, SignatureRequest } from '@/types'
 
 interface SignatureRequestMinimal {
   id?: string
@@ -85,6 +85,44 @@ export default function DealSignaturesPage() {
     (deal as { signature_requests?: SignatureRequestMinimal[] }).signature_requests ?? []
 
   const currentParty = parties.find((p) => p.user_id === currentUserId) ?? null
+  const isCreator = deal.created_by === currentUserId
+  const [partyFieldReqs, setPartyFieldReqs] = useState<Record<string, RequiredFields>>({})
+
+  const getRequiredFields = useCallback((partyId: string): RequiredFields => {
+    const rf = partyFieldReqs[partyId] ?? (parties.find((p) => p.id === partyId) as DealParty & { required_fields?: RequiredFields })?.required_fields ?? {
+      signature: true,
+      initials: true,
+      date: true,
+    }
+    if (!rf.signature && !rf.initials && !rf.date) {
+      return { signature: true, initials: true, date: true }
+    }
+    return rf
+  }, [partyFieldReqs, parties])
+
+  const handlePartyFieldsChange = useCallback(async (partyId: string, fields: RequiredFields) => {
+    setPartyFieldReqs((prev) => ({ ...prev, [partyId]: fields }))
+    try {
+      await fetch(`/api/parties/${partyId}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          required_fields: {
+            signature: fields.signature,
+            initials: fields.initials,
+            date: fields.date,
+          },
+        }),
+      })
+    } catch {
+      setPartyFieldReqs((prev) => {
+        const next = { ...prev }
+        delete next[partyId]
+        return next
+      })
+    }
+  }, [])
+
   const signOrderCheck = currentParty
     ? canPartySign(currentParty, parties, signatureRequests, documents)
     : { allowed: false, reason: 'You are not a party to this deal' }
@@ -162,6 +200,49 @@ export default function DealSignaturesPage() {
           ? 'Upload documents first to collect signatures.'
           : `Signing status for ${documents.length} document(s).`}
       </p>
+
+      {isCreator && parties.length > 0 && (
+        <div className="rounded-2xl border border-teal-200 bg-teal-50/30 p-6">
+          <h3 className="font-display text-lg font-semibold text-warm-900 mb-4">Field Requirements per Party</h3>
+          <p className="text-sm text-warm-600 mb-4">
+            Choose which fields each party must complete when signing. Default: all three.
+          </p>
+          <div className="space-y-4">
+            {parties.map((party) => (
+              <div key={party.id} className="flex flex-wrap items-center gap-4 rounded-xl border border-teal-100 bg-white p-4">
+                <span className="font-medium text-warm-800 min-w-[140px]">{party.invite_name}</span>
+                <label className="flex items-center gap-2 cursor-pointer">
+                  <input
+                    type="checkbox"
+                    checked={getRequiredFields(party.id).signature}
+                    onChange={(e) => handlePartyFieldsChange(party.id, { ...getRequiredFields(party.id), signature: e.target.checked })}
+                    className="rounded border-warm-300 text-coral-500 focus:ring-coral-500"
+                  />
+                  <span className="text-sm text-warm-700">Signature required</span>
+                </label>
+                <label className="flex items-center gap-2 cursor-pointer">
+                  <input
+                    type="checkbox"
+                    checked={getRequiredFields(party.id).initials}
+                    onChange={(e) => handlePartyFieldsChange(party.id, { ...getRequiredFields(party.id), initials: e.target.checked })}
+                    className="rounded border-warm-300 text-coral-500 focus:ring-coral-500"
+                  />
+                  <span className="text-sm text-warm-700">Initials required</span>
+                </label>
+                <label className="flex items-center gap-2 cursor-pointer">
+                  <input
+                    type="checkbox"
+                    checked={getRequiredFields(party.id).date}
+                    onChange={(e) => handlePartyFieldsChange(party.id, { ...getRequiredFields(party.id), date: e.target.checked })}
+                    className="rounded border-warm-300 text-coral-500 focus:ring-coral-500"
+                  />
+                  <span className="text-sm text-warm-700">Date required</span>
+                </label>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
 
       {currentParty && !signOrderCheck.allowed && (
         <div className="rounded-2xl border border-amber-200 bg-amber-50 p-4">
@@ -242,6 +323,7 @@ export default function DealSignaturesPage() {
                 <SignatureFlow
                   document={doc}
                   documentUrl={doc.file_path}
+                  requiredFields={currentParty ? getRequiredFields(currentParty.id) : undefined}
                   onRequestOtp={handleRequestOtp}
                   onVerifyAndSign={handleVerifyAndSign}
                 />

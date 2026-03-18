@@ -7,9 +7,11 @@ interface SignaturePadProps {
   onSave: (dataUrl: string) => void
   savedData?: string
   className?: string
+  compact?: boolean
+  label?: string
 }
 
-export function SignaturePad({ onSave, savedData, className }: SignaturePadProps) {
+export function SignaturePad({ onSave, savedData, className, compact, label }: SignaturePadProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null)
   const [isDrawing, setIsDrawing] = useState(false)
   const [hasSignature, setHasSignature] = useState(!!savedData)
@@ -90,13 +92,19 @@ export function SignaturePad({ onSave, savedData, className }: SignaturePadProps
     }
   }, [])
 
+  const canvasHeight = compact ? 80 : 200
+  const displayLabel = label ?? (compact ? 'Draw your initials' : 'Draw your signature')
+
   return (
     <div className={cn('flex flex-col gap-3', className)}>
+      {displayLabel && (
+        <p className="text-sm font-medium text-warm-700">{displayLabel}</p>
+      )}
       <div className="relative overflow-hidden rounded-2xl border-2 border-warm-200 bg-white">
         <canvas
           ref={canvasRef}
           width={500}
-          height={200}
+          height={canvasHeight}
           className="w-full max-w-md touch-none"
           style={{ touchAction: 'none' }}
           onMouseDown={startDrawing}
@@ -122,7 +130,7 @@ export function SignaturePad({ onSave, savedData, className }: SignaturePadProps
           disabled={!hasSignature}
           className="rounded-xl bg-coral-500 px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-coral-600 disabled:opacity-50 disabled:cursor-not-allowed"
         >
-          Use This Signature
+          {compact ? 'Use These Initials' : 'Use This Signature'}
         </button>
       </div>
     </div>
