@@ -1,6 +1,6 @@
 import type { CapacitorConfig } from '@capacitor/cli';
 
-const serverUrl = process.env.CAPACITOR_SERVER_URL || 'https://web-production-f3e46.up.railway.app';
+const serverUrl = process.env.CAPACITOR_SERVER_URL || 'https://signest.up.railway.app';
 
 const config: CapacitorConfig = {
   appId: 'com.signnest.app',

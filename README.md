@@ -275,7 +275,7 @@ deedroom/
 
    - `DATABASE_URL` — from your PostgreSQL service
    - `AUTH_SECRET` or `NEXTAUTH_SECRET` — `openssl rand -base64 32`
-   - `NEXTAUTH_URL` — your app URL (e.g. `https://signnest.up.railway.app`)
+   - `NEXTAUTH_URL` — your app URL (e.g. `https://signest.up.railway.app`)
    - `NEXT_PUBLIC_APP_URL` — same as `NEXTAUTH_URL`
    - Optional: `TERMII_*`, `BREVO_*`, `PDF_SEAL_SALT`, `OTP_EXPIRY_MINUTES`
 

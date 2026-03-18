@@ -12,7 +12,7 @@
 - **SMS/WhatsApp OTP:** Termii (configured, falls back to mock OTP in dev)
 - **Mobile:** Capacitor (Android + iOS) — loads live server URL
 - **Hosting:** Railway (web service + managed Postgres)
-- **Live URL:** https://signnest.up.railway.app
+- **Live URL:** https://signest.up.railway.app
 
 ---
 
@@ -124,7 +124,7 @@ All test accounts use password: `password123`
 |----------|-------------|
 | `DATABASE_URL` | PostgreSQL connection string (auto-set by Railway) |
 | `AUTH_SECRET` | NextAuth.js secret key |
-| `NEXTAUTH_URL` | Full app URL (e.g., `https://signnest.up.railway.app`) |
+| `NEXTAUTH_URL` | Full app URL (e.g., `https://signest.up.railway.app`) |
 | `NEXT_PUBLIC_APP_URL` | Same as NEXTAUTH_URL |
 
 ### Payments (Paystack)
@@ -183,7 +183,7 @@ npm run mobile:dev
 
 ### Configuration
 - **App ID:** `com.signnest.app`
-- **Server URL:** `https://signnest.up.railway.app` (overridable via `CAPACITOR_SERVER_URL`)
+- **Server URL:** `https://signest.up.railway.app` (overridable via `CAPACITOR_SERVER_URL`)
 - **Offline fallback:** `out/index.html` — loading spinner with retry
 
 ---
@@ -217,7 +217,7 @@ npx prisma studio
 | Real Termii API keys | High | Replace test/mock OTP with live SMS delivery |
 | Real Brevo API keys | High | Enable transactional emails (invites, receipts, notifications) |
 | Real Paystack keys | High | Switch from test to live payment processing |
-| Custom domain | Medium | Replace `signnest.up.railway.app` with a branded domain |
+| Custom domain | Medium | Replace `signest.up.railway.app` with a branded domain |
 | App Store submission | Medium | Build release APK/IPA, create store listings, submit for review |
 | Firebase Cloud Messaging | Medium | Configure push notifications for native apps |
 | Cloud file storage | Medium | Migrate from local `/uploads` to S3/Cloudflare R2 for production |
