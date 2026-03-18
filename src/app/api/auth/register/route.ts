@@ -17,9 +17,13 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: parsed.error.flatten() }, { status: 400 })
   }
 
-  const { email, password, fullName, phone } = parsed.data
+  const { email: rawEmail, password: rawPassword, fullName, phone } = parsed.data
+  const email = rawEmail.trim().toLowerCase()
+  const password = rawPassword.trim()
 
-  const existing = await prisma.user.findUnique({ where: { email } })
+  const existing = await prisma.user.findFirst({
+    where: { email: { equals: email, mode: 'insensitive' } },
+  })
   if (existing) {
     return NextResponse.json({ error: 'Email already registered' }, { status: 409 })
   }
@@ -28,7 +32,7 @@ export async function POST(request: Request) {
 
   const user = await prisma.user.create({
     data: {
-      email,
+      email: email,
       name: fullName,
       password: hashed,
       phone: phone ?? null,
