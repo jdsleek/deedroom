@@ -6,7 +6,7 @@ export const metadata: Metadata = {
   description: 'Download the SignNest app for Android or install on iPhone. Close property deals faster with secure transaction rooms, e-signatures, and audit trails.',
 }
 
-const APK_URL = 'https://github.com/jdsleek/deedroom/releases/download/v1.0.0/SignNest-debug.apk'
+const APK_URL = '/SignNest.apk'
 const WEB_URL = 'https://web-production-f3e46.up.railway.app'
 
 export default function DownloadPage() {
