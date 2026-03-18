@@ -1,10 +1,11 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useCallback } from 'react'
 import Link from 'next/link'
 import { DealCard } from '@/components/deals/DealCard'
 import { Button } from '@/components/ui/Button'
 import { Input } from '@/components/ui/Input'
+import { useAutoRefresh } from '@/hooks/usePolling'
 import type { Deal } from '@/types'
 
 type FilterTab = 'all' | 'active' | 'completed' | 'cancelled'
@@ -34,6 +35,20 @@ export default function DealsPage() {
     }
     fetchDeals()
   }, [filter, search, sort])
+
+  const refreshDeals = useCallback(async () => {
+    try {
+      const params = new URLSearchParams()
+      if (filter !== 'all') params.set('status', filter)
+      if (search) params.set('search', search)
+      params.set('sort', sort)
+      const res = await fetch(`/api/deals?${params}`)
+      const { data } = await res.json()
+      setDeals(data ?? [])
+    } catch { /* ignore */ }
+  }, [filter, search, sort])
+
+  useAutoRefresh(refreshDeals, 30000)
 
   const tabs: { key: FilterTab; label: string }[] = [
     { key: 'all', label: 'All' },

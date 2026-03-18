@@ -303,7 +303,7 @@ export async function generateEvidencePdf(params: {
   const font = await doc.embedFont(StandardFonts.Helvetica);
   const fontBold = await doc.embedFont(StandardFonts.HelveticaBold);
 
-  const page = doc.addPage([595, 842]);
+  let page = doc.addPage([595, 842]);
   const { width, height } = page.getSize();
   let y = height - 60;
 
@@ -394,9 +394,8 @@ export async function generateEvidencePdf(params: {
     });
     y -= 12;
     if (y < 60) {
-      const newPage = doc.addPage([595, 842]);
+      page = doc.addPage([595, 842]);
       y = height - 60;
-      // continue on new page - simplified: we'd need page ref
     }
   }
 

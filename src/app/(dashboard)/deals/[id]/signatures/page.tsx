@@ -6,6 +6,7 @@ import { useSession } from 'next-auth/react'
 import { SignatureStatus } from '@/components/signatures/SignatureStatus'
 import { SignatureFlow } from '@/components/signatures/SignatureFlow'
 import { Button } from '@/components/ui/Button'
+import { useAutoRefresh } from '@/hooks/usePolling'
 import type { Deal, DealParty, Document, RequiredFields, SignatureRequest } from '@/types'
 
 interface SignatureRequestMinimal {
@@ -69,6 +70,8 @@ export default function DealSignaturesPage() {
   useEffect(() => {
     fetchDeal()
   }, [fetchDeal])
+
+  useAutoRefresh(fetchDeal, 10000)
 
   if (loading || !deal) {
     return (

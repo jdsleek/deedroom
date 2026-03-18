@@ -3,6 +3,7 @@
 import { useEffect, useState, useCallback, useRef } from 'react'
 import { useParams, useSearchParams } from 'next/navigation'
 import { PaymentList } from '@/components/payments/PaymentList'
+import { useAutoRefresh } from '@/hooks/usePolling'
 import type { Deal, Payment } from '@/types'
 
 export default function DealPaymentsPage() {
@@ -37,6 +38,8 @@ export default function DealPaymentsPage() {
   useEffect(() => {
     fetchData()
   }, [fetchData])
+
+  useAutoRefresh(fetchData, 20000)
 
   useEffect(() => {
     if (!ref || verifiedRef.current) return

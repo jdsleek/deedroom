@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import { Plus_Jakarta_Sans, DM_Sans } from "next/font/google";
 import "./globals.css";
+import { CapacitorInit } from "@/components/CapacitorInit";
 
 const jakarta = Plus_Jakarta_Sans({
   variable: "--font-display",
@@ -19,10 +20,15 @@ export const metadata: Metadata = {
   description:
     "Secure transaction rooms for real estate. Create deals, share documents, collect e-signatures, and produce executed PDFs with full audit trail.",
   applicationName: "SignNest",
+  manifest: "/manifest.json",
+  themeColor: "#1B2838",
   appleWebApp: {
     capable: true,
-    statusBarStyle: "default",
+    statusBarStyle: "black-translucent",
     title: "SignNest",
+  },
+  icons: {
+    apple: "/icons/icon-192.svg",
   },
 };
 
@@ -44,6 +50,8 @@ export default function RootLayout({
       <body
         className={`${jakarta.variable} ${dmSans.variable} font-sans antialiased bg-background text-foreground`}
       >
+        <CapacitorInit />
+        <script dangerouslySetInnerHTML={{ __html: `if('serviceWorker' in navigator){navigator.serviceWorker.register('/sw.js')}` }} />
         {children}
       </body>
     </html>

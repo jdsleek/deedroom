@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useCallback } from 'react'
 import { useParams, usePathname } from 'next/navigation'
 import Link from 'next/link'
 import { PartyList } from '@/components/deals/PartyList'
@@ -9,6 +9,7 @@ import { DealStatusBadge } from '@/components/deals/DealStatusBadge'
 import { Button } from '@/components/ui/Button'
 import { Card } from '@/components/ui/Card'
 import { formatNaira } from '@/types'
+import { useAutoRefresh } from '@/hooks/usePolling'
 import type { Deal } from '@/types'
 import { AlertTriangle, X } from 'lucide-react'
 
@@ -40,7 +41,9 @@ export default function DealOverviewPage() {
       .finally(() => setLoading(false))
   }, [id])
 
-  const refresh = () => fetch(`/api/deals/${id}`).then((r) => r.json()).then(({ data }) => setDeal(data))
+  const refresh = useCallback(() => fetch(`/api/deals/${id}`).then((r) => r.json()).then(({ data }) => setDeal(data)), [id])
+
+  useAutoRefresh(refresh, 15000)
 
   const base = `/deals/${id}`
   const tabs = [

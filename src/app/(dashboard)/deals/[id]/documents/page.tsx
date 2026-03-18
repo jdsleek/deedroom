@@ -1,8 +1,9 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useCallback } from 'react'
 import { useParams } from 'next/navigation'
 import { DocumentVault } from '@/components/documents/DocumentVault'
+import { useAutoRefresh } from '@/hooks/usePolling'
 import type { Deal, Document as DocumentType } from '@/types'
 
 export default function DealDocumentsPage() {
@@ -19,11 +20,13 @@ export default function DealDocumentsPage() {
       .finally(() => setLoading(false))
   }, [id])
 
-  const refreshDeal = () => {
+  const refreshDeal = useCallback(() => {
     fetch(`/api/deals/${id}`)
       .then((r) => r.json())
       .then(({ data }) => setDeal(data))
-  }
+  }, [id])
+
+  useAutoRefresh(refreshDeal, 20000)
 
   if (loading || !deal) {
     return (
