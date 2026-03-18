@@ -5,6 +5,7 @@ import Link from 'next/link'
 import { Button } from '@/components/ui/Button'
 import { DealCard } from '@/components/deals/DealCard'
 import { serializeDeal } from '@/lib/serialize'
+import type { DealParty, Document } from '@/types'
 
 export default async function DashboardPage() {
   const session = await auth()
@@ -108,8 +109,8 @@ export default async function DashboardPage() {
                 key={deal.id}
                 deal={{
                   ...deal,
-                  parties: deal.parties,
-                  documents: deal.documents,
+                  parties: deal.parties as DealParty[],
+                  documents: deal.documents as Document[],
                 }}
               />
             ))}

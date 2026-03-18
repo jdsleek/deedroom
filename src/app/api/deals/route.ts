@@ -45,8 +45,8 @@ export async function GET(request: Request) {
         ...(search
           ? [{
               OR: [
-                { title: { contains: search, mode: 'insensitive' } },
-                { propertyAddress: { contains: search, mode: 'insensitive' } },
+                { title: { contains: search, mode: 'insensitive' as const } },
+                { propertyAddress: { contains: search, mode: 'insensitive' as const } },
               ],
             }]
           : []),

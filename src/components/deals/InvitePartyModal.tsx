@@ -72,7 +72,7 @@ export function InvitePartyModal({ dealId, open, onClose, onSuccess }: InvitePar
   }
 
   return (
-    <Modal open={open} onClose={handleClose} title="Invite Party">
+    <Modal isOpen={open} onClose={handleClose} title="Invite Party">
       {inviteLink ? (
         <div className="space-y-4">
           <p className="text-sm text-navy-600">Invitation sent. Share this link:</p>

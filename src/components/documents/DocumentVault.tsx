@@ -145,7 +145,7 @@ export function DocumentVault({ dealId, documents, canManage = true, onRefresh }
         )}
       </div>
 
-      <Modal open={uploadModal} onClose={() => !uploading && setUploadModal(false)} title="Upload Document">
+      <Modal isOpen={uploadModal} onClose={() => !uploading && setUploadModal(false)} title="Upload Document">
         {uploading ? (
           <div className="py-12 flex justify-center">
             <Spinner />

@@ -78,7 +78,7 @@ export function SignatureFlow({
       {step === 'review' && (
         <div className="space-y-4">
           <h3 className="font-display text-xl text-navy-700">Review Document</h3>
-          <DocumentViewer url={documentUrl} name={document.name} />
+          <DocumentViewer documentId={document.id} />
           <Button onClick={() => setStep('sign')}>Continue to Sign</Button>
         </div>
       )}

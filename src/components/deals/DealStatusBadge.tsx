@@ -5,8 +5,8 @@ import { cn } from '@/lib/utils';
 import type { DealStatus } from '@/types';
 import { DEAL_STATUS_CONFIG } from '@/types';
 
-export function DealStatusBadge({ status }: { status: DealStatus }) {
-  const config = DEAL_STATUS_CONFIG[status] ?? { label: status, color: 'gray' };
+export function DealStatusBadge({ status }: { status: DealStatus | string }) {
+  const config = DEAL_STATUS_CONFIG[status as DealStatus] ?? { label: status, color: 'gray' };
   return (
     <Badge
       variant="outline"

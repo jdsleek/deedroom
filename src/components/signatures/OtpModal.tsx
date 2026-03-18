@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useCallback, useEffect } from 'react'
+import { useState, useCallback, useEffect, useRef } from 'react'
 import { Modal } from '@/components/ui/Modal'
 import { Button } from '@/components/ui/Button'
 import { cn } from '@/lib/utils'
@@ -152,7 +152,7 @@ export function OtpModal({
           Code expires in {minutes}:{seconds.toString().padStart(2, '0')}
         </div>
         <div className="flex flex-col gap-3">
-          <Button onClick={handleSubmit} disabled={loading || code.length !== 6} fullWidth>
+          <Button onClick={handleSubmit} disabled={loading || code.length !== 6} className="w-full">
             {loading ? 'Verifying...' : 'Verify & Sign'}
           </Button>
           <button

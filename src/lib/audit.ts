@@ -38,19 +38,16 @@ export interface LogAuditParams {
 }
 
 export async function logAudit(params: LogAuditParams): Promise<void> {
-  const supabase = createClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.SUPABASE_SERVICE_ROLE_KEY!
-  );
-
-  await supabase.from("audit_logs").insert({
-    deal_id: params.dealId ?? null,
-    action: params.action,
-    actor_id: params.actorId ?? null,
-    actor_name: params.actorName ?? null,
-    actor_phone: params.actorPhone ?? null,
-    metadata: params.metadata ?? {},
-    ip_address: params.ipAddress ?? null,
-    user_agent: params.userAgent ?? null,
+  await prisma.auditLog.create({
+    data: {
+      dealId: params.dealId ?? null,
+      action: params.action,
+      actorId: params.actorId ?? null,
+      actorName: params.actorName ?? null,
+      actorPhone: params.actorPhone ?? null,
+      metadata: (params.metadata ?? {}) as object,
+      ipAddress: params.ipAddress ?? null,
+      userAgent: params.userAgent ?? null,
+    },
   });
 }

@@ -54,13 +54,13 @@ export async function POST(request: NextRequest) {
     const fileName = `${crypto.randomUUID()}-${name.replace(/[^a-zA-Z0-9.-]/g, "_")}.${ext}`;
     const filePath = `${dealId}/${fileName}`;
 
-    let bytes = await file.arrayBuffer();
-    if (watermark && file.type === "application/pdf") {
-      const watermarked = await applyDraftWatermark(bytes);
-      bytes = watermarked;
-    }
+    const arrayBuf = await file.arrayBuffer();
+    const toSave =
+      watermark && file.type === "application/pdf"
+        ? await applyDraftWatermark(arrayBuf)
+        : new Uint8Array(arrayBuf);
 
-    await saveFile(filePath, new Uint8Array(bytes));
+    await saveFile(filePath, Buffer.from(toSave));
 
     const doc = await prisma.document.create({
       data: {

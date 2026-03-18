@@ -10,7 +10,8 @@ export async function saveFile(
   const fullPath = path.join(UPLOAD_DIR, relativePath)
   const dir = path.dirname(fullPath)
   await fs.mkdir(dir, { recursive: true })
-  await fs.writeFile(fullPath, Buffer.from(buffer))
+  const buf = buffer instanceof Buffer ? buffer : Buffer.from(new Uint8Array(buffer))
+  await fs.writeFile(fullPath, buf)
   return fullPath
 }
 

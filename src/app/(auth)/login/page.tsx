@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { Suspense, useState } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import { signIn } from 'next-auth/react';
@@ -10,7 +10,7 @@ import { Card } from '@/components/ui/Card';
 import { Spinner } from '@/components/ui/Spinner';
 import { ToastContainer, useToast } from '@/components/ui/Toast';
 
-export default function LoginPage() {
+function LoginForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const redirectTo = searchParams.get('redirectTo') ?? '/dashboard';
@@ -21,7 +21,10 @@ export default function LoginPage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!email || !password) return;
+    if (!email || !password) {
+      addToast({ type: 'error', message: 'Please enter both email and password.' });
+      return;
+    }
     setLoading(true);
     try {
       const res = await signIn('credentials', {
@@ -30,7 +33,10 @@ export default function LoginPage() {
         redirect: false,
         callbackUrl: redirectTo,
       });
-      if (res?.error) throw new Error(res.error);
+      if (res?.error) {
+        const msg = res.error === 'CredentialsSignin' ? 'Invalid email or password.' : res.error;
+        throw new Error(msg);
+      }
       if (res?.ok) {
         router.push(redirectTo);
         router.refresh();
@@ -52,7 +58,9 @@ export default function LoginPage() {
         <form onSubmit={handleSubmit} className="space-y-4">
           <Input
             label="Email"
+            name="email"
             type="email"
+            autoComplete="email"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             placeholder="you@example.com"
@@ -60,7 +68,9 @@ export default function LoginPage() {
           />
           <Input
             label="Password"
+            name="password"
             type="password"
+            autoComplete="current-password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             placeholder="••••••••"
@@ -79,5 +89,13 @@ export default function LoginPage() {
       </Card>
       <ToastContainer toasts={toasts} onClose={removeToast} />
     </>
+  );
+}
+
+export default function LoginPage() {
+  return (
+    <Suspense fallback={<div className="flex min-h-[200px] items-center justify-center text-navy-400">Loading...</div>}>
+      <LoginForm />
+    </Suspense>
   );
 }

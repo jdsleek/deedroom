@@ -5,13 +5,19 @@ import { cn } from '@/lib/utils';
 export interface CardProps {
   children: React.ReactNode;
   className?: string;
+  onClick?: () => void;
 }
 
-export function Card({ children, className }: CardProps) {
+export function Card({ children, className, onClick }: CardProps) {
   return (
     <div
+      role={onClick ? 'button' : undefined}
+      tabIndex={onClick ? 0 : undefined}
+      onClick={onClick}
+      onKeyDown={onClick ? (e) => e.key === 'Enter' && onClick() : undefined}
       className={cn(
         'rounded-xl border border-cream-300 bg-cream-50 p-6 shadow-card transition-shadow hover:shadow-raised',
+        onClick && 'cursor-pointer',
         className
       )}
     >

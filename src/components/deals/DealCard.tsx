@@ -10,10 +10,21 @@ import { formatNaira } from '@/types';
 import type { Deal } from '@/types';
 
 interface DealCardProps {
-  deal: Deal & {
+  deal: {
+    id: string;
+    deal_type: string;
+    status: string;
+    title: string;
+    property_address: string;
+    created_at: string;
+    rent_amount?: number | null;
+    sale_price?: number | null;
+    rent_period?: string | null;
     party_count?: number;
     doc_count?: number;
     signed_count?: number;
+    parties?: Array<{ id: string; status: string }>;
+    documents?: Array<{ id: string }>;
   };
 }
 

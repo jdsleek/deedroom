@@ -90,7 +90,7 @@ export function AuditTrail({ dealId, logs, onExportEvidence, loading }: AuditTra
         )}
       </div>
 
-      <Card padding="lg">
+      <Card>
         {loading ? (
           <div className="flex items-center justify-center py-12">
             <div className="h-8 w-8 animate-spin rounded-full border-2 border-navy-600 border-t-transparent" />

@@ -69,8 +69,8 @@ export async function DELETE(
     if (!doc) return NextResponse.json({ error: "Not found" }, { status: 404 });
     if (doc.deal.createdById !== userId) return NextResponse.json({ error: "Forbidden" }, { status: 403 });
 
-    const { deleteDocument } = await import("@/lib/storage");
-    await deleteDocument(doc.filePath);
+    const { deleteFile } = await import("@/lib/storage");
+    await deleteFile(doc.filePath);
     await prisma.document.delete({ where: { id } });
 
     await logAudit({
