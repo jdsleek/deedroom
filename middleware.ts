@@ -1,7 +1,7 @@
 import { NextResponse, type NextRequest } from 'next/server'
 import { getToken } from 'next-auth/jwt'
 
-const PROTECTED_PREFIXES = ['/dashboard', '/deals', '/settings', '/admin']
+const PROTECTED_PREFIXES = ['/dashboard', '/deals', '/settings', '/admin', '/notifications', '/templates', '/kyc']
 const AUTH_ROUTES = ['/login', '/register']
 const PUBLIC_PREFIXES = ['/invite', '/api/invites', '/api/auth']
 
@@ -42,10 +42,6 @@ export async function middleware(request: NextRequest) {
 
   if (pathname === '/' && user) {
     return NextResponse.redirect(new URL('/dashboard', request.url))
-  }
-
-  if (pathname === '/' && !user) {
-    return NextResponse.redirect(new URL('/login', request.url))
   }
 
   return NextResponse.next()
