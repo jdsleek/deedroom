@@ -1,9 +1,8 @@
 'use client';
 
-import { Suspense, useState, useEffect } from 'react';
+import { Suspense, useState, useEffect, useRef } from 'react';
 import { useSearchParams } from 'next/navigation';
 import Link from 'next/link';
-import { signIn } from 'next-auth/react';
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
 import { Spinner } from '@/components/ui/Spinner';
@@ -17,32 +16,38 @@ function LoginForm() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
+  const [csrfToken, setCsrfToken] = useState('');
+  const formRef = useRef<HTMLFormElement>(null);
+
+  useEffect(() => {
+    fetch('/api/auth/csrf')
+      .then(r => r.json())
+      .then(d => setCsrfToken(d.csrfToken))
+      .catch(() => {});
+  }, []);
 
   useEffect(() => {
     if (errorParam === 'CredentialsSignin') {
       addToast({ type: 'error', message: 'Invalid email or password.' });
+    } else if (errorParam === 'Configuration') {
+      addToast({ type: 'error', message: 'Server configuration error. Please try again later.' });
     } else if (errorParam) {
       addToast({ type: 'error', message: 'Sign in failed. Please try again.' });
     }
   }, [errorParam]);
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!email || !password) {
       addToast({ type: 'error', message: 'Please enter both email and password.' });
       return;
     }
-    setLoading(true);
-    try {
-      await signIn('credentials', {
-        email,
-        password,
-        callbackUrl: redirectTo,
-      });
-    } catch {
-      addToast({ type: 'error', message: 'Something went wrong. Please try again.' });
-      setLoading(false);
+    if (!csrfToken) {
+      addToast({ type: 'error', message: 'Loading... please try again in a moment.' });
+      return;
     }
+    setLoading(true);
+    formRef.current?.submit();
   };
 
   return (
@@ -61,7 +66,15 @@ function LoginForm() {
         </p>
       </div>
       <div className="rounded-2xl border border-warm-200 bg-white p-6 sm:p-8 shadow-sm">
-        <form onSubmit={handleSubmit} className="space-y-5">
+        <form
+          ref={formRef}
+          method="POST"
+          action="/api/auth/callback/credentials"
+          onSubmit={handleSubmit}
+          className="space-y-5"
+        >
+          <input type="hidden" name="csrfToken" value={csrfToken} />
+          <input type="hidden" name="callbackUrl" value={redirectTo} />
           <Input
             label="Email"
             name="email"
