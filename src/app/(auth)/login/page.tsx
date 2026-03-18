@@ -1,21 +1,30 @@
 'use client';
 
-import { Suspense, useState } from 'react';
+import { Suspense, useState, useEffect } from 'react';
 import { useSearchParams } from 'next/navigation';
 import Link from 'next/link';
+import { signIn } from 'next-auth/react';
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
 import { Spinner } from '@/components/ui/Spinner';
 import { ToastContainer, useToast } from '@/components/ui/Toast';
-import { loginAction } from './actions';
 
 function LoginForm() {
   const searchParams = useSearchParams();
   const redirectTo = searchParams.get('redirectTo') ?? '/dashboard';
+  const errorParam = searchParams.get('error');
   const { toasts, addToast, removeToast } = useToast();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    if (errorParam === 'CredentialsSignin') {
+      addToast({ type: 'error', message: 'Invalid email or password.' });
+    } else if (errorParam) {
+      addToast({ type: 'error', message: 'Sign in failed. Please try again.' });
+    }
+  }, [errorParam]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -25,13 +34,13 @@ function LoginForm() {
     }
     setLoading(true);
     try {
-      const result = await loginAction(email, password, redirectTo);
-      if (result?.error) {
-        addToast({ type: 'error', message: result.error });
-      }
+      await signIn('credentials', {
+        email,
+        password,
+        callbackUrl: redirectTo,
+      });
     } catch {
-      // signIn redirects on success by throwing NEXT_REDIRECT — this is expected
-    } finally {
+      addToast({ type: 'error', message: 'Something went wrong. Please try again.' });
       setLoading(false);
     }
   };
