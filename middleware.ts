@@ -1,5 +1,5 @@
-import { NextResponse, type NextRequest } from 'next/server'
-import { getToken } from 'next-auth/jwt'
+import { auth } from '@/auth'
+import { NextResponse } from 'next/server'
 
 const PROTECTED_PREFIXES = ['/dashboard', '/deals', '/settings', '/admin', '/notifications', '/templates', '/kyc']
 const AUTH_ROUTES = ['/login', '/register']
@@ -17,12 +17,8 @@ function isPublicRoute(pathname: string) {
   return PUBLIC_PREFIXES.some((p) => pathname.startsWith(p))
 }
 
-export async function middleware(request: NextRequest) {
-  const token = await getToken({
-    req: request,
-    secret: process.env.NEXTAUTH_SECRET ?? process.env.AUTH_SECRET,
-  })
-  const user = token
+export default auth((request) => {
+  const user = request.auth
   const pathname = request.nextUrl.pathname
 
   if (isPublicRoute(pathname)) {
@@ -45,7 +41,7 @@ export async function middleware(request: NextRequest) {
   }
 
   return NextResponse.next()
-}
+})
 
 export const config = {
   matcher: [
