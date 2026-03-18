@@ -16,7 +16,7 @@ const dmSans = DM_Sans({
 });
 
 export const metadata: Metadata = {
-  title: "SignNest — Close Deals. Collect Signatures. Build Trust.",
+  title: "SignNest — Close Property Deals. Collect Signatures. Build Trust.",
   description:
     "Secure transaction rooms for real estate. Create deals, share documents, collect e-signatures, and produce executed PDFs with full audit trail.",
   applicationName: "SignNest",

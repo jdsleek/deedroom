@@ -51,7 +51,7 @@ export default function DownloadPage() {
                 </div>
 
                 <h1 className="font-display text-4xl sm:text-5xl font-extrabold leading-[1.1] tracking-tight">
-                  Close Deals.<br />
+                  Close Property Deals.<br />
                   <span className="text-[#4CAF50]">Collect Signatures.</span><br />
                   Build Trust.
                 </h1>

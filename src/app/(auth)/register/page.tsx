@@ -31,8 +31,7 @@ export default function RegisterPage() {
       const data = await res.json();
       if (!res.ok) throw new Error(data.error ?? 'Registration failed');
       addToast({ type: 'success', message: 'Account created. Sign in to continue.' });
-      router.push('/login');
-      router.refresh();
+      window.location.href = '/login';
     } catch (err) {
       addToast({ type: 'error', message: (err as Error).message });
     } finally {
@@ -52,7 +51,7 @@ export default function RegisterPage() {
           <span className="font-display text-2xl font-bold text-white">SignNest</span>
         </div>
         <p className="font-sans text-white/70 text-base">
-          Close deals. Collect signatures. Build trust.
+          Close property deals. Collect signatures. Build trust.
         </p>
       </div>
       <div className="rounded-2xl border border-warm-200 bg-white p-6 sm:p-8 shadow-sm">

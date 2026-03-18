@@ -1,6 +1,6 @@
 # SignNest
 
-**Close deals. Collect signatures. Build trust.**
+**Close property deals. Collect signatures. Build trust.**
 
 SignNest is a secure transaction room platform for Nigerian real estate deals. Create deal rooms, invite parties, share documents, collect eSignatures via OTP, and produce sealed executed PDFs with a full audit trail.
 

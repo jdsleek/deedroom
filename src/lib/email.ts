@@ -77,7 +77,7 @@ export function inviteEmailHtml(args: {
     </p>
   </div>
   <p style="color:#9CA3AF;font-size:12px;text-align:center;margin-top:24px;">
-    SignNest — Close deals. Collect signatures. Build trust.
+    SignNest — Close property deals. Collect signatures. Build trust.
   </p>
 </div>
 </body>

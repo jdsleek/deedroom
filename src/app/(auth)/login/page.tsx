@@ -41,8 +41,8 @@ function LoginForm() {
         throw new Error(msg);
       }
       if (res?.ok) {
-        router.push(redirectTo);
-        router.refresh();
+        window.location.href = redirectTo;
+        return;
       }
     } catch (err) {
       addToast({ type: 'error', message: (err as Error).message });
@@ -63,7 +63,7 @@ function LoginForm() {
           <span className="font-display text-2xl font-bold text-white">SignNest</span>
         </div>
         <p className="font-sans text-white/70 text-base">
-          Close deals. Collect signatures. Build trust.
+          Close property deals. Collect signatures. Build trust.
         </p>
       </div>
       <div className="rounded-2xl border border-warm-200 bg-white p-6 sm:p-8 shadow-sm">

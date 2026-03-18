@@ -75,7 +75,7 @@ export function Sidebar() {
       </nav>
 
       <div className="p-4 border-t border-white/10">
-        <p className="text-xs text-white/40">Close deals. Collect signatures.</p>
+        <p className="text-xs text-white/40">Close property deals. Collect signatures.</p>
       </div>
     </aside>
   )
