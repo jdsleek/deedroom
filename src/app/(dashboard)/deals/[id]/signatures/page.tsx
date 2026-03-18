@@ -58,6 +58,7 @@ export default function DealSignaturesPage() {
   const [activeDocId, setActiveDocId] = useState<string | null>(null)
   const [sigRequestId, setSigRequestId] = useState<string | null>(null)
   const [creatingRequest, setCreatingRequest] = useState(false)
+  const [partyFieldReqs, setPartyFieldReqs] = useState<Record<string, RequiredFields>>({})
 
   const fetchDeal = useCallback(() => {
     fetch(`/api/deals/${id}`)
@@ -73,23 +74,13 @@ export default function DealSignaturesPage() {
 
   useAutoRefresh(fetchDeal, 10000)
 
-  if (loading || !deal) {
-    return (
-      <div className="flex min-h-[200px] items-center justify-center">
-        <div className="h-8 w-8 animate-spin rounded-full border-2 border-coral-500 border-t-transparent" />
-      </div>
-    )
-  }
-
-  const parties: DealParty[] =
-    (deal as { deal_parties?: DealParty[] }).deal_parties ?? deal.parties ?? []
-  const documents: Document[] = deal.documents ?? []
-  const signatureRequests: SignatureRequestMinimal[] =
-    (deal as { signature_requests?: SignatureRequestMinimal[] }).signature_requests ?? []
-
-  const currentParty = parties.find((p) => p.user_id === currentUserId) ?? null
-  const isCreator = deal.created_by === currentUserId
-  const [partyFieldReqs, setPartyFieldReqs] = useState<Record<string, RequiredFields>>({})
+  const parties: DealParty[] = deal
+    ? ((deal as { deal_parties?: DealParty[] }).deal_parties ?? deal.parties ?? [])
+    : []
+  const documents: Document[] = deal?.documents ?? []
+  const signatureRequests: SignatureRequestMinimal[] = deal
+    ? ((deal as { signature_requests?: SignatureRequestMinimal[] }).signature_requests ?? [])
+    : []
 
   const getRequiredFields = useCallback((partyId: string): RequiredFields => {
     const rf = partyFieldReqs[partyId] ?? (parties.find((p) => p.id === partyId) as DealParty & { required_fields?: RequiredFields })?.required_fields ?? {
@@ -125,6 +116,17 @@ export default function DealSignaturesPage() {
       })
     }
   }, [])
+
+  if (loading || !deal) {
+    return (
+      <div className="flex min-h-[200px] items-center justify-center">
+        <div className="h-8 w-8 animate-spin rounded-full border-2 border-coral-500 border-t-transparent" />
+      </div>
+    )
+  }
+
+  const currentParty = parties.find((p) => p.user_id === currentUserId) ?? null
+  const isCreator = deal.created_by === currentUserId
 
   const signOrderCheck = currentParty
     ? canPartySign(currentParty, parties, signatureRequests, documents)
