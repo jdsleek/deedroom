@@ -34,7 +34,11 @@ function LoginForm() {
         callbackUrl: redirectTo,
       });
       if (res?.error) {
-        const msg = res.error === 'CredentialsSignin' ? 'Invalid email or password.' : res.error;
+        let msg = res.error;
+        if (res.error === 'CredentialsSignin') msg = 'Invalid email or password.';
+        else if (res.error.toLowerCase().includes('configuration') || res.error === 'Configuration') {
+          msg = 'Auth not configured. Add AUTH_SECRET to .env.local (run: openssl rand -base64 32)';
+        }
         throw new Error(msg);
       }
       if (res?.ok) {

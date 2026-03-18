@@ -4,7 +4,15 @@ import { PrismaAdapter } from "@auth/prisma-adapter";
 import { prisma } from "@/lib/db";
 import { compare } from "bcryptjs";
 
+const secret = process.env.NEXTAUTH_SECRET ?? process.env.AUTH_SECRET;
+if (!secret || secret === "your-random-32-char-secret") {
+  console.error(
+    "[DeedRoom] AUTH_SECRET is missing or still the placeholder. Add to .env.local: AUTH_SECRET=$(openssl rand -base64 32)"
+  );
+}
+
 export const { handlers, auth, signIn, signOut } = NextAuth({
+  trustHost: true,
   adapter: PrismaAdapter(prisma),
   session: { strategy: "jwt", maxAge: 30 * 24 * 60 * 60 },
   pages: {
