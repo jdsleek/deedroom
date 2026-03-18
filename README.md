@@ -89,8 +89,12 @@ Open [http://localhost:3000](http://localhost:3000). Register a new account and 
 
 1. Connect your repo to Railway
 2. Add PostgreSQL plugin (or use existing)
-3. Set environment variables: `DATABASE_URL`, `NEXTAUTH_SECRET`, `NEXTAUTH_URL` (e.g. `https://your-app.railway.app`)
-4. For file storage in production, mount a volume at `./uploads` or switch to S3/Vercel Blob
+3. **Required environment variables** (Settings → Variables):
+   - `DATABASE_URL` — from PostgreSQL plugin (auto-linked if same project)
+   - `AUTH_SECRET` or `NEXTAUTH_SECRET` — generate: `openssl rand -base64 32`
+   - `NEXTAUTH_URL` — your app URL (e.g. `https://deedroom.up.railway.app`)
+4. Deploy — `prisma db push` runs on startup to sync the schema
+5. For file storage, mount a volume at `./uploads` or switch to S3/Vercel Blob
 
 ## Project Structure
 
