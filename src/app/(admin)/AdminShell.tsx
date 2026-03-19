@@ -15,6 +15,7 @@ import {
   X,
 } from 'lucide-react'
 import { signOut } from 'next-auth/react'
+import { SignNestLogo } from '@/components/brand/SignNestLogo'
 import { useRouter } from 'next/navigation'
 import { LogOut } from 'lucide-react'
 
@@ -94,14 +95,9 @@ export function AdminShell({ children, user }: AdminShellProps) {
       {/* Desktop sidebar */}
       <aside className="hidden lg:flex w-[260px] min-h-screen flex-col bg-navy-500 shrink-0">
         <div className="p-6 pb-4">
-          <Link href="/admin" className="flex items-center gap-2.5">
-            <div className="w-9 h-9 rounded-xl bg-coral-500 flex items-center justify-center">
-              <span className="text-white font-display font-bold text-lg">S</span>
-            </div>
-            <div className="flex flex-col">
-              <span className="font-display text-xl font-bold text-white">SignNest</span>
-              <span className="text-[11px] font-semibold text-coral-400 -mt-0.5 tracking-wide uppercase">Admin</span>
-            </div>
+          <Link href="/admin" className="flex flex-col gap-1">
+            <SignNestLogo size="lg" className="max-w-[200px]" />
+            <span className="text-[11px] font-semibold text-coral-400 tracking-wide uppercase">Admin</span>
           </Link>
         </div>
         <NavContent />
@@ -129,12 +125,9 @@ export function AdminShell({ children, user }: AdminShellProps) {
             className="flex items-center gap-2.5"
             onClick={() => setMobileMenuOpen(false)}
           >
-            <div className="w-9 h-9 rounded-xl bg-coral-500 flex items-center justify-center">
-              <span className="text-white font-display font-bold text-lg">S</span>
-            </div>
-            <div className="flex flex-col">
-              <span className="font-display text-xl font-bold text-white">SignNest</span>
-              <span className="text-[11px] font-semibold text-coral-400 -mt-0.5 tracking-wide uppercase">Admin</span>
+            <div className="flex flex-col gap-1">
+              <SignNestLogo size="lg" className="max-w-[200px]" />
+              <span className="text-[11px] font-semibold text-coral-400 tracking-wide uppercase">Admin</span>
             </div>
           </Link>
           <button
@@ -161,11 +154,9 @@ export function AdminShell({ children, user }: AdminShellProps) {
             >
               <Menu className="h-6 w-6" />
             </button>
-            <div className="flex items-center gap-2.5">
-              <div className="w-8 h-8 rounded-lg bg-coral-500 flex items-center justify-center">
-                <span className="text-white font-display font-bold text-sm">S</span>
-              </div>
-              <span className="font-display text-lg font-bold text-white">SignNest Admin</span>
+            <div className="flex items-center gap-2 min-w-0">
+              <SignNestLogo size="sm" className="max-w-[120px] shrink-0" />
+              <span className="font-display text-sm font-bold text-white truncate">Admin</span>
             </div>
           </div>
 

@@ -3,6 +3,7 @@
 import { signOut } from 'next-auth/react'
 import { useRouter } from 'next/navigation'
 import { LogOut, Bell } from 'lucide-react'
+import { SignNestLogo } from '@/components/brand/SignNestLogo'
 import { useEffect, useState, useRef, useCallback } from 'react'
 
 interface Notification {
@@ -108,11 +109,8 @@ export function Topbar({ user }: TopbarProps) {
 
   return (
     <header className="bg-navy-500 border-b border-navy-600 flex items-center justify-between px-4 lg:px-6 sticky top-0 z-30" style={{ paddingTop: 'env(safe-area-inset-top, 0px)', minHeight: 'calc(3.5rem + env(safe-area-inset-top, 0px))' }}>
-      <div className="lg:hidden flex items-center gap-2.5">
-        <div className="w-8 h-8 rounded-lg bg-coral-500 flex items-center justify-center">
-          <span className="text-white font-display font-bold text-sm">S</span>
-        </div>
-        <span className="font-display text-lg font-bold text-white">SignNest</span>
+      <div className="lg:hidden flex items-center">
+        <SignNestLogo size="md" className="max-w-[160px]" />
       </div>
 
       <div className="hidden lg:block" />

@@ -1,6 +1,7 @@
 import { redirect } from 'next/navigation'
 import Link from 'next/link'
 import { auth } from '@/auth'
+import { SignNestLogo } from '@/components/brand/SignNestLogo'
 
 export default async function HomePage() {
   const session = await auth()
@@ -8,20 +9,15 @@ export default async function HomePage() {
 
   return (
     <div className="min-h-screen flex flex-col">
-      {/* Hero - Dark Navy */}
-      <section className="bg-navy-500 text-white px-4 pt-12 pb-16 sm:pt-20 sm:pb-24">
+      {/* Hero — brand black (matches approved logo) */}
+      <section className="bg-black text-white px-4 pt-12 pb-16 sm:pt-20 sm:pb-24">
         <div className="mx-auto max-w-md text-center">
-          <div className="inline-flex items-center gap-3 mb-8">
-            <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-coral-500 text-white shadow-lg">
-              <svg className="w-7 h-7" fill="currentColor" viewBox="0 0 24 24">
-                <path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/>
-              </svg>
-            </div>
-            <span className="font-display text-2xl font-bold">SignNest</span>
+          <div className="flex justify-center mb-8">
+            <SignNestLogo size="hero" priority className="max-w-[min(100%,320px)]" />
           </div>
 
           <h1 className="font-display text-3xl sm:text-4xl font-bold leading-tight">
-            Welcome to <span className="text-coral-400">SignNest</span>
+            Welcome to SignNest
           </h1>
           <p className="mt-3 text-white/70 text-base sm:text-lg">
             Close Property Deals Faster
@@ -93,7 +89,7 @@ export default async function HomePage() {
       </section>
 
       {/* CTA */}
-      <section className="bg-navy-500 px-4 py-16">
+      <section className="bg-black px-4 py-16">
         <div className="mx-auto max-w-md text-center">
           <h2 className="font-display text-2xl font-bold text-white">
             Ready to streamline your deals?
@@ -118,7 +114,7 @@ export default async function HomePage() {
         </div>
       </section>
 
-      <footer className="bg-navy-600 py-6">
+      <footer className="bg-black border-t border-white/10 py-6">
         <div className="mx-auto max-w-6xl px-4 text-center text-sm text-white/50">
           SignNest &copy; 2026
         </div>

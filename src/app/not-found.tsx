@@ -1,20 +1,14 @@
 import Link from 'next/link'
+import { SignNestLogo } from '@/components/brand/SignNestLogo'
 
-const coral = '#F0725C'
 const teal = '#0D9488'
 
 export default function NotFound() {
   return (
     <div className="min-h-screen flex flex-col items-center justify-center bg-background px-4">
       <div className="text-center max-w-md">
-        <Link href="/" className="inline-flex items-center gap-2.5 mb-12">
-          <div
-            className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl text-white"
-            style={{ backgroundColor: coral }}
-          >
-            <span className="font-display text-xl font-bold">S</span>
-          </div>
-          <span className="font-display text-2xl font-bold text-warm-900">SignNest</span>
+        <Link href="/" className="inline-block mb-12">
+          <SignNestLogo size="lg" className="max-w-[220px]" />
         </Link>
         <h1 className="font-display text-6xl font-bold text-warm-900">404</h1>
         <p className="mt-4 font-display text-xl font-semibold text-warm-800">

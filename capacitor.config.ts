@@ -16,14 +16,14 @@ const config: CapacitorConfig = {
     scheme: 'SignNest',
   },
   android: {
-    backgroundColor: '#1B2838',
+    backgroundColor: '#000000',
     allowMixedContent: true,
   },
   plugins: {
     SplashScreen: {
       launchShowDuration: 2000,
       launchAutoHide: true,
-      backgroundColor: '#1B2838',
+      backgroundColor: '#000000',
       showSpinner: false,
       androidScaleType: 'CENTER_CROP',
       splashFullScreen: true,
@@ -31,7 +31,7 @@ const config: CapacitorConfig = {
     },
     StatusBar: {
       style: 'DARK',
-      backgroundColor: '#1B2838',
+      backgroundColor: '#000000',
     },
     Keyboard: {
       resize: 'body',

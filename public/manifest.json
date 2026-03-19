@@ -4,8 +4,8 @@
   "description": "Close property deals. Collect signatures. Build trust.",
   "start_url": "/dashboard",
   "display": "standalone",
-  "background_color": "#1B2838",
-  "theme_color": "#1B2838",
+  "background_color": "#000000",
+  "theme_color": "#000000",
   "orientation": "portrait-primary",
   "categories": ["business", "productivity"],
   "icons": [

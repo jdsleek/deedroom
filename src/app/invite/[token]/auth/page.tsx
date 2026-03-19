@@ -7,6 +7,7 @@ import { signIn, useSession } from 'next-auth/react'
 import { Button } from '@/components/ui/Button'
 import { Input } from '@/components/ui/Input'
 import { Card } from '@/components/ui/Card'
+import { SignNestLogo } from '@/components/brand/SignNestLogo'
 
 export default function InviteAuthPage() {
   const params = useParams()
@@ -91,6 +92,9 @@ export default function InviteAuthPage() {
   return (
     <div className="flex min-h-screen items-center justify-center bg-cream-100 px-4">
       <Card className="max-w-md w-full p-8">
+        <div className="mb-6 flex justify-center rounded-xl bg-black p-4 -mx-2">
+          <SignNestLogo size="md" className="max-w-[180px]" />
+        </div>
         <h1 className="font-display text-xl font-semibold text-navy-600">
           {mode === 'register' ? 'Create account' : 'Sign in'}
         </h1>

@@ -1,5 +1,6 @@
 import Link from 'next/link'
 import type { Metadata } from 'next'
+import { SignNestLogo } from '@/components/brand/SignNestLogo'
 
 export const metadata: Metadata = {
   title: 'Download SignNest — The Real Estate Deal Closer',
@@ -22,14 +23,7 @@ export default function DownloadPage() {
         {/* Header */}
         <header className="px-6 py-6">
           <div className="mx-auto max-w-5xl flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-[#2E7D32] shadow-lg shadow-[#2E7D32]/30">
-                <svg className="w-6 h-6 text-white" fill="currentColor" viewBox="0 0 24 24">
-                  <path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z" />
-                </svg>
-              </div>
-              <span className="font-display text-xl font-bold tracking-tight">SignNest</span>
-            </div>
+            <SignNestLogo size="lg" className="max-w-[200px]" />
             <Link
               href="/login"
               className="text-sm font-medium text-white/60 hover:text-white transition-colors"
@@ -112,13 +106,8 @@ export default function DownloadPage() {
                     <div className="mx-auto mt-2 w-24 h-6 bg-black rounded-full" />
                     {/* Screen content */}
                     <div className="px-5 pt-6 pb-8">
-                      <div className="flex items-center gap-2 mb-6">
-                        <div className="w-8 h-8 rounded-lg bg-[#2E7D32] flex items-center justify-center">
-                          <svg className="w-5 h-5 text-white" fill="currentColor" viewBox="0 0 24 24">
-                            <path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z" />
-                          </svg>
-                        </div>
-                        <span className="font-display font-bold text-sm">SignNest</span>
+                      <div className="mb-6">
+                        <SignNestLogo size="sm" className="max-w-[140px]" />
                       </div>
                       {/* Mini deal cards */}
                       <div className="space-y-3">
@@ -233,14 +222,7 @@ export default function DownloadPage() {
         {/* Footer */}
         <footer className="border-t border-white/[0.06] px-6 py-8">
           <div className="mx-auto max-w-5xl flex flex-col sm:flex-row items-center justify-between gap-4">
-            <div className="flex items-center gap-2">
-              <div className="w-6 h-6 rounded-md bg-[#2E7D32] flex items-center justify-center">
-                <svg className="w-4 h-4 text-white" fill="currentColor" viewBox="0 0 24 24">
-                  <path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z" />
-                </svg>
-              </div>
-              <span className="text-sm font-semibold">SignNest</span>
-            </div>
+            <SignNestLogo size="xs" className="max-w-[100px] opacity-90" />
             <p className="text-xs text-white/30">&copy; 2026 SignNest. All rights reserved.</p>
           </div>
         </footer>

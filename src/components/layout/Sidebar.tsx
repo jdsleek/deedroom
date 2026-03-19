@@ -5,6 +5,7 @@ import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { cn } from '@/lib/utils'
 import { LayoutDashboard, Handshake, ShieldCheck, Settings, Shield } from 'lucide-react'
+import { SignNestLogo } from '@/components/brand/SignNestLogo'
 
 const navItems = [
   { href: '/dashboard', label: 'Dashboard', icon: LayoutDashboard },
@@ -27,11 +28,8 @@ export function Sidebar() {
   return (
     <aside className="hidden lg:flex w-[260px] min-h-screen flex-col bg-navy-500 shrink-0">
       <div className="p-6 pb-4">
-        <Link href="/dashboard" className="flex items-center gap-2.5">
-          <div className="w-9 h-9 rounded-xl bg-coral-500 flex items-center justify-center">
-            <span className="text-white font-display font-bold text-lg">S</span>
-          </div>
-          <span className="font-display text-xl font-bold text-white">SignNest</span>
+        <Link href="/dashboard" className="flex items-center">
+          <SignNestLogo size="lg" className="max-w-[200px]" />
         </Link>
       </div>
 

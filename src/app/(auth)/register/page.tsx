@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
+import { SignNestLogo } from '@/components/brand/SignNestLogo';
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
 import { Spinner } from '@/components/ui/Spinner';
@@ -42,13 +43,8 @@ export default function RegisterPage() {
   return (
     <>
       <div className="text-center mb-10">
-        <div className="inline-flex items-center gap-3 mb-6">
-          <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-coral-500 text-white shadow-lg">
-            <svg className="w-7 h-7" fill="currentColor" viewBox="0 0 24 24">
-              <path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/>
-            </svg>
-          </div>
-          <span className="font-display text-2xl font-bold text-white">SignNest</span>
+        <div className="flex justify-center mb-6">
+          <SignNestLogo size="xl" priority className="mx-auto max-w-[240px]" />
         </div>
         <p className="font-sans text-white/70 text-base">
           Close property deals. Collect signatures. Build trust.
