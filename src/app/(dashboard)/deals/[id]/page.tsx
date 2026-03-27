@@ -2,6 +2,7 @@
 
 import { useEffect, useState, useCallback } from 'react'
 import { useParams, usePathname } from 'next/navigation'
+import { useSession } from 'next-auth/react'
 import Link from 'next/link'
 import { PartyList } from '@/components/deals/PartyList'
 import { InvitePartyModal } from '@/components/deals/InvitePartyModal'
@@ -10,12 +11,21 @@ import { Button } from '@/components/ui/Button'
 import { Card } from '@/components/ui/Card'
 import { formatNaira } from '@/types'
 import { useAutoRefresh } from '@/hooks/usePolling'
-import type { Deal } from '@/types'
-import { AlertTriangle, X } from 'lucide-react'
+import type { Deal, DealParty, Document as DealDoc } from '@/types'
+import { AlertTriangle, X, CheckCircle2 } from 'lucide-react'
+
+interface SignatureRequestMinimal {
+  id?: string
+  document_id: string
+  party_id: string
+  signed_at: string | null
+}
 
 export default function DealOverviewPage() {
   const params = useParams()
   const pathname = usePathname()
+  const { data: session } = useSession()
+  const currentUserId = (session?.user as { id?: string })?.id
   const id = params.id as string
   const [deal, setDeal] = useState<Deal | null>(null)
   const [loading, setLoading] = useState(true)
@@ -24,6 +34,8 @@ export default function DealOverviewPage() {
   const [showDisputeModal, setShowDisputeModal] = useState(false)
   const [disputeReason, setDisputeReason] = useState('')
   const [disputeSubmitting, setDisputeSubmitting] = useState(false)
+  const [completing, setCompleting] = useState(false)
+  const [completeError, setCompleteError] = useState<string | null>(null)
 
   useEffect(() => {
     const urlParams = new URLSearchParams(typeof window !== 'undefined' ? window.location.search : '')
@@ -72,6 +84,25 @@ export default function DealOverviewPage() {
       </div>
     )
   }
+
+  const isCreator = deal.created_by === currentUserId
+  const parties: DealParty[] = deal.parties ?? []
+  const documents: DealDoc[] = deal.documents ?? []
+  const signatureRequests: SignatureRequestMinimal[] =
+    (deal as unknown as { signature_requests?: SignatureRequestMinimal[] }).signature_requests ?? []
+
+  const activeParties = parties.filter((p) => p.status !== 'declined')
+  const canComplete =
+    deal.status !== 'completed' &&
+    deal.status !== 'cancelled' &&
+    documents.length > 0 &&
+    activeParties.length > 0 &&
+    activeParties.every((party) => {
+      const signed = signatureRequests.filter(
+        (sr) => sr.party_id === party.id && sr.signed_at
+      ).length
+      return signed >= documents.length
+    })
 
   if (deal.status === 'completed') {
     return (
@@ -257,6 +288,45 @@ export default function DealOverviewPage() {
           </Link>
         ))}
       </nav>
+
+      {isCreator && canComplete && (
+        <div className="rounded-2xl border border-teal-200 bg-teal-50/50 p-5">
+          <div className="flex items-start gap-3">
+            <CheckCircle2 className="h-5 w-5 text-teal-600 mt-0.5 shrink-0" />
+            <div className="flex-1">
+              <p className="text-sm font-semibold text-teal-800">
+                All parties have signed all documents
+              </p>
+              <p className="text-sm text-teal-700 mt-1">
+                You can now complete this deal. This will seal all documents and finalize the transaction.
+              </p>
+              {completeError && (
+                <p className="text-sm text-red-600 mt-2">{completeError}</p>
+              )}
+              <Button
+                className="mt-3"
+                disabled={completing}
+                onClick={async () => {
+                  setCompleting(true)
+                  setCompleteError(null)
+                  try {
+                    const res = await fetch(`/api/deals/${deal!.id}/complete`, { method: 'POST' })
+                    const json = await res.json()
+                    if (!res.ok) throw new Error(json.error ?? 'Failed to complete deal')
+                    refresh()
+                  } catch (e) {
+                    setCompleteError(e instanceof Error ? e.message : 'Failed to complete deal')
+                  } finally {
+                    setCompleting(false)
+                  }
+                }}
+              >
+                {completing ? 'Completing...' : 'Complete Deal'}
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
 
       <Card className="p-6">
         <PartyList

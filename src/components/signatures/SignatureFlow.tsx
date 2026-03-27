@@ -223,9 +223,13 @@ export function SignatureFlow({
                 </div>
               )}
               <Button
-                onClick={() => {
-                  setOtpModalOpen(true)
-                  onRequestOtp()
+                onClick={async () => {
+                  try {
+                    await onRequestOtp()
+                    setOtpModalOpen(true)
+                  } catch {
+                    // Error handled by parent
+                  }
                 }}
               >
                 Get OTP & Complete

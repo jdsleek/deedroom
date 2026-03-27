@@ -21,17 +21,44 @@ export async function POST(request: NextRequest) {
 
     const sigReq = await prisma.signatureRequest.findUnique({
       where: { id: signature_request_id },
-      include: { party: { select: { invitePhone: true, inviteName: true, dealId: true } } },
+      include: {
+        party: { select: { id: true, userId: true, invitePhone: true, inviteName: true, dealId: true } },
+        deal: { select: { status: true } },
+      },
     })
     if (!sigReq) return NextResponse.json({ error: "Not found" }, { status: 404 })
 
+    if (sigReq.party.userId !== userId) {
+      return NextResponse.json({ error: "Forbidden" }, { status: 403 })
+    }
+
+    const signerProfile = await prisma.profile.findUnique({
+      where: { id: userId },
+      select: { kycStatus: true },
+    })
+    if (!signerProfile || signerProfile.kycStatus !== 'verified') {
+      return NextResponse.json(
+        { error: "Identity verification required. Complete KYC before signing documents." },
+        { status: 403 }
+      )
+    }
+
+    if (sigReq.deal.status === "completed" || sigReq.deal.status === "cancelled") {
+      return NextResponse.json({ error: "Deal is not in a signable state" }, { status: 400 })
+    }
+
+    if (sigReq.signedAt) {
+      return NextResponse.json({ error: "This document has already been signed" }, { status: 400 })
+    }
+
     const phone = sigReq.party.invitePhone
-    if (!phone) return NextResponse.json({ error: "Party has no phone" }, { status: 400 })
+    if (!phone) return NextResponse.json({ error: "Party has no phone number. Update your profile to add one." }, { status: 400 })
 
     const recentLogs = await prisma.auditLog.count({
       where: {
         dealId: sigReq.dealId,
         action: "otp_requested",
+        actorId: userId,
         createdAt: { gte: new Date(Date.now() - OTP_COOLDOWN_MS) },
       },
     })
@@ -39,11 +66,16 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "Too many OTP requests. Try again later." }, { status: 429 })
     }
 
-    const result = await sendOtp(
-      phone,
-      channel as "sms" | "whatsapp",
-      `SignNest: Signing as ${sigReq.party.inviteName || "party"}`
-    )
+    let result
+    try {
+      result = await sendOtp(
+        phone,
+        channel as "sms" | "whatsapp",
+        `SignNest: Signing as ${sigReq.party.inviteName || "party"}`
+      )
+    } catch {
+      return NextResponse.json({ error: "Failed to send OTP. Please try again." }, { status: 502 })
+    }
     if (!result?.pinId) return NextResponse.json({ error: "Failed to send OTP" }, { status: 500 })
 
     const expiryMinutes = parseInt(process.env.OTP_EXPIRY_MINUTES || "10", 10)
@@ -51,7 +83,7 @@ export async function POST(request: NextRequest) {
 
     await prisma.signatureRequest.update({
       where: { id: signature_request_id },
-      data: { otpPinId: result.pinId, otpExpiresAt },
+      data: { otpPinId: result.pinId, otpExpiresAt, otpAttempts: 0 },
     })
 
     await logAudit({
@@ -62,8 +94,7 @@ export async function POST(request: NextRequest) {
       metadata: { signatureRequestId: signature_request_id },
     })
 
-    const deal = await prisma.deal.findUnique({ where: { id: sigReq.dealId }, select: { status: true } })
-    if (deal && (deal.status === 'sent' || deal.status === 'viewing')) {
+    if (sigReq.deal.status === 'sent' || sigReq.deal.status === 'viewing') {
       await prisma.deal.update({ where: { id: sigReq.dealId }, data: { status: 'signing' } })
     }
 

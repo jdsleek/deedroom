@@ -92,8 +92,8 @@ export default function InviteAuthPage() {
   return (
     <div className="flex min-h-screen items-center justify-center bg-cream-100 px-4">
       <Card className="max-w-md w-full p-8">
-        <div className="mb-6 flex justify-center rounded-xl bg-black p-4 -mx-2">
-          <SignNestLogo size="md" className="max-w-[180px]" />
+        <div className="mb-6 flex justify-center rounded-xl bg-black p-5 -mx-2">
+          <SignNestLogo size="lg" />
         </div>
         <h1 className="font-display text-xl font-semibold text-navy-600">
           {mode === 'register' ? 'Create account' : 'Sign in'}

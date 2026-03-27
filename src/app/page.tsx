@@ -13,7 +13,7 @@ export default async function HomePage() {
       <section className="bg-black text-white px-4 pt-12 pb-16 sm:pt-20 sm:pb-24">
         <div className="mx-auto max-w-md text-center">
           <div className="flex justify-center mb-8">
-            <SignNestLogo size="hero" priority className="max-w-[min(100%,320px)]" />
+            <SignNestLogo size="hero" priority />
           </div>
 
           <h1 className="font-display text-3xl sm:text-4xl font-bold leading-tight">

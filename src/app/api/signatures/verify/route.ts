@@ -39,12 +39,43 @@ export async function POST(request: NextRequest) {
     if (sigReq.party.userId !== userId) {
       return NextResponse.json({ error: "Forbidden" }, { status: 403 })
     }
+
+    const deal = await prisma.deal.findUnique({
+      where: { id: sigReq.dealId },
+      select: { status: true, title: true, createdById: true },
+    })
+    if (!deal || deal.status === "completed" || deal.status === "cancelled") {
+      return NextResponse.json(
+        { error: "Deal is not in a signable state" },
+        { status: 400 }
+      )
+    }
+
     if (!sigReq.otpPinId) return NextResponse.json({ error: "OTP not requested" }, { status: 400 })
     if (sigReq.otpAttempts >= 3) {
       return NextResponse.json({ error: "Max attempts exceeded. Request new OTP." }, { status: 429 })
     }
+    if (sigReq.otpExpiresAt && sigReq.otpExpiresAt < new Date()) {
+      return NextResponse.json({ error: "OTP has expired. Please request a new one." }, { status: 400 })
+    }
 
-    const { verified } = await verifyOtp(sigReq.otpPinId, String(otp_code))
+    let verified: boolean
+    try {
+      const result = await verifyOtp(sigReq.otpPinId, String(otp_code))
+      verified = result.verified
+    } catch {
+      await logAudit({
+        dealId: sigReq.dealId,
+        action: "otp_failed",
+        actorId: userId,
+        metadata: { signatureRequestId: signature_request_id, reason: "provider_error" },
+      })
+      return NextResponse.json(
+        { error: "OTP verification failed. Please request a new code and try again." },
+        { status: 502 }
+      )
+    }
+
     if (!verified) {
       await prisma.signatureRequest.update({
         where: { id: signature_request_id },
@@ -59,9 +90,9 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ data: { verified: false, deal_completed: false } })
     }
 
-    const headers = request.headers
-    const ip = headers.get("x-forwarded-for")?.split(",")[0] || headers.get("x-real-ip") || null
-    const ua = headers.get("user-agent") || null
+    const reqHeaders = request.headers
+    const ip = reqHeaders.get("x-forwarded-for")?.split(",")[0] || reqHeaders.get("x-real-ip") || null
+    const ua = reqHeaders.get("user-agent") || null
 
     if (!payloadToStore || payloadToStore === "{}") {
       return NextResponse.json(
@@ -81,39 +112,49 @@ export async function POST(request: NextRequest) {
       },
     })
 
-    await prisma.dealParty.update({
-      where: { id: sigReq.partyId },
-      data: { status: "signed", signedAt: new Date() },
-    })
-
     await logAudit({
       dealId: sigReq.dealId,
       action: "otp_verified",
       actorId: userId,
       metadata: { signatureRequestId: signature_request_id },
     })
-    await logAudit({
-      dealId: sigReq.dealId,
-      action: "party_signed",
-      actorId: userId,
-      metadata: { partyId: sigReq.partyId },
+
+    const totalDocuments = await prisma.document.count({ where: { dealId: sigReq.dealId } })
+    const signedByParty = await prisma.signatureRequest.count({
+      where: { dealId: sigReq.dealId, partyId: sigReq.partyId, signedAt: { not: null } },
     })
 
-    const deal = await prisma.deal.findUnique({
-      where: { id: sigReq.dealId },
-      select: { title: true, createdById: true },
-    })
+    const partyFullySigned = signedByParty >= totalDocuments
+
+    if (partyFullySigned) {
+      await prisma.dealParty.update({
+        where: { id: sigReq.partyId },
+        data: { status: "signed", signedAt: new Date() },
+      })
+      await logAudit({
+        dealId: sigReq.dealId,
+        action: "party_signed",
+        actorId: userId,
+        metadata: { partyId: sigReq.partyId },
+      })
+    } else {
+      await prisma.dealParty.update({
+        where: { id: sigReq.partyId },
+        data: { status: "signing" },
+      })
+    }
+
     const signerProfile = await prisma.profile.findUnique({ where: { id: userId }, select: { fullName: true } })
 
     const allParties = await prisma.dealParty.findMany({
-      where: { dealId: sigReq.dealId },
-      select: { status: true, userId: true, inviteName: true },
+      where: { dealId: sigReq.dealId, status: { not: "declined" } },
+      select: { id: true, status: true, userId: true, inviteName: true },
     })
 
     const otherUserIds = allParties
       .filter((p) => p.userId && p.userId !== userId)
       .map((p) => p.userId as string)
-    if (deal?.createdById && deal.createdById !== userId) {
+    if (deal.createdById && deal.createdById !== userId) {
       otherUserIds.push(deal.createdById)
     }
     const uniqueUserIds = [...new Set(otherUserIds)]
@@ -123,37 +164,47 @@ export async function POST(request: NextRequest) {
           userId: uid,
           type: 'signature',
           title: 'Document Signed',
-          message: `${signerProfile?.fullName ?? 'A party'} signed documents for "${deal?.title ?? 'a deal'}"`,
+          message: `${signerProfile?.fullName ?? 'A party'} signed a document for "${deal.title ?? 'a deal'}"`,
           link: `/deals/${sigReq.dealId}/signatures`,
         }))
       )
     }
-    const allSigned = allParties.length > 0 && allParties.every((p) => p.status === "signed")
 
-    if (allSigned) {
-      await prisma.deal.update({
-        where: { id: sigReq.dealId },
-        data: { status: "completed", completedAt: new Date() },
-      })
+    const allFullySigned = allParties.length > 0
+      && totalDocuments > 0
+      && allParties.every((p) => p.status === "signed")
+
+    if (allFullySigned) {
+      await prisma.$transaction([
+        prisma.deal.update({
+          where: { id: sigReq.dealId },
+          data: { status: "completed", completedAt: new Date() },
+        }),
+        prisma.document.updateMany({
+          where: { dealId: sigReq.dealId },
+          data: { isExecuted: true },
+        }),
+      ])
+
       await logAudit({ dealId: sigReq.dealId, action: "deal_completed", actorId: userId })
 
       const allUserIds = allParties
         .filter((p) => p.userId)
         .map((p) => p.userId as string)
-      if (deal?.createdById) allUserIds.push(deal.createdById)
+      if (deal.createdById) allUserIds.push(deal.createdById)
       const uniqueCompletionUserIds = [...new Set(allUserIds)]
       await notifyMany(
         uniqueCompletionUserIds.map((uid) => ({
           userId: uid,
           type: 'deal_update',
           title: 'Deal Completed',
-          message: `All parties have signed. "${deal?.title ?? 'Your deal'}" is now completed!`,
+          message: `All parties have signed all documents. "${deal.title ?? 'Your deal'}" is now completed!`,
           link: `/deals/${sigReq.dealId}`,
         }))
       )
     }
 
-    return NextResponse.json({ data: { verified: true, deal_completed: allSigned } })
+    return NextResponse.json({ data: { verified: true, deal_completed: allFullySigned } })
   } catch (e) {
     console.error(e)
     return NextResponse.json({ error: "Server error" }, { status: 500 })

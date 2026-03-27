@@ -157,13 +157,20 @@ export default function DealSignaturesPage() {
     }
   }
 
+  const [sigError, setSigError] = useState<string | null>(null)
+
   const handleRequestOtp = async (): Promise<{ expiresAt: string }> => {
+    setSigError(null)
     const res = await fetch('/api/signatures/otp', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ signature_request_id: sigRequestId }),
     })
     const json = await res.json()
+    if (!res.ok) {
+      setSigError(json.error ?? 'Failed to send OTP')
+      throw new Error(json.error ?? 'Failed to send OTP')
+    }
     return { expiresAt: json.data?.expires_at ?? '' }
   }
 
@@ -268,6 +275,17 @@ export default function DealSignaturesPage() {
               It's your turn to sign (order {currentParty.sign_order})
             </p>
           </div>
+        </div>
+      )}
+
+      {sigError && (
+        <div className="rounded-2xl border border-red-200 bg-red-50 p-4">
+          <p className="text-sm font-medium text-red-800">{sigError}</p>
+          {sigError.toLowerCase().includes('kyc') && (
+            <a href="/kyc" className="text-sm font-medium text-red-600 underline hover:text-red-700 mt-1 inline-block">
+              Go to Identity Verification
+            </a>
+          )}
         </div>
       )}
 

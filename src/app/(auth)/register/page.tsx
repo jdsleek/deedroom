@@ -44,7 +44,7 @@ export default function RegisterPage() {
     <>
       <div className="text-center mb-10">
         <div className="flex justify-center mb-6">
-          <SignNestLogo size="xl" priority className="mx-auto max-w-[240px]" />
+          <SignNestLogo size="hero" priority />
         </div>
         <p className="font-sans text-white/70 text-base">
           Close property deals. Collect signatures. Build trust.

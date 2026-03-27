@@ -17,13 +17,25 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    // Enforce sign order
+    const deal = await prisma.deal.findUnique({
+      where: { id: deal_id },
+      select: { status: true },
+    })
+    if (!deal) return NextResponse.json({ error: "Deal not found" }, { status: 404 })
+    if (deal.status === "completed" || deal.status === "cancelled") {
+      return NextResponse.json({ error: "Deal is not in a signable state" }, { status: 400 })
+    }
+
     const party = await prisma.dealParty.findUnique({ where: { id: party_id } })
     if (!party) {
       return NextResponse.json({ error: "Party not found" }, { status: 404 })
     }
+    if (party.userId !== userId) {
+      return NextResponse.json({ error: "Forbidden" }, { status: 403 })
+    }
 
     if (party.signOrder != null) {
+      const totalDocs = await prisma.document.count({ where: { dealId: deal_id } })
       const priorParties = await prisma.dealParty.findMany({
         where: {
           dealId: deal_id,
@@ -33,7 +45,6 @@ export async function POST(request: NextRequest) {
       })
 
       for (const prior of priorParties) {
-        const totalDocs = await prisma.document.count({ where: { dealId: deal_id } })
         const signedDocs = await prisma.signatureRequest.count({
           where: { dealId: deal_id, partyId: prior.id, signedAt: { not: null } },
         })

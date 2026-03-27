@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { requireAdmin } from '@/lib/admin'
 import { prisma } from '@/lib/db'
+import { notify } from '@/lib/notifications'
 
 export async function GET(req: NextRequest) {
   try {
@@ -85,6 +86,24 @@ export async function PATCH(req: NextRequest) {
       where: { id: userId },
       data,
     })
+
+    if (kycStatus === 'verified') {
+      await notify({
+        userId,
+        type: 'kyc',
+        title: 'Identity Verified',
+        message: 'Your KYC has been approved. You now have full access to all SignNest features.',
+        link: '/kyc',
+      })
+    } else if (kycStatus === 'rejected') {
+      await notify({
+        userId,
+        type: 'kyc',
+        title: 'KYC Rejected',
+        message: 'Your identity verification was not approved. Please resubmit with valid documents.',
+        link: '/kyc',
+      })
+    }
 
     return NextResponse.json({
       id: updated.id,

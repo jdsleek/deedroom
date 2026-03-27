@@ -110,7 +110,7 @@ export function Topbar({ user }: TopbarProps) {
   return (
     <header className="bg-navy-500 border-b border-navy-600 flex items-center justify-between px-4 lg:px-6 sticky top-0 z-30" style={{ paddingTop: 'env(safe-area-inset-top, 0px)', minHeight: 'calc(3.5rem + env(safe-area-inset-top, 0px))' }}>
       <div className="lg:hidden flex items-center">
-        <SignNestLogo size="md" className="max-w-[160px]" />
+        <SignNestLogo size="md" />
       </div>
 
       <div className="hidden lg:block" />

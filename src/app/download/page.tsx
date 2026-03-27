@@ -23,7 +23,7 @@ export default function DownloadPage() {
         {/* Header */}
         <header className="px-6 py-6">
           <div className="mx-auto max-w-5xl flex items-center justify-between">
-            <SignNestLogo size="lg" className="max-w-[200px]" />
+            <SignNestLogo size="lg" />
             <Link
               href="/login"
               className="text-sm font-medium text-white/60 hover:text-white transition-colors"
@@ -107,7 +107,7 @@ export default function DownloadPage() {
                     {/* Screen content */}
                     <div className="px-5 pt-6 pb-8">
                       <div className="mb-6">
-                        <SignNestLogo size="sm" className="max-w-[140px]" />
+                        <SignNestLogo size="sm" />
                       </div>
                       {/* Mini deal cards */}
                       <div className="space-y-3">
@@ -222,7 +222,7 @@ export default function DownloadPage() {
         {/* Footer */}
         <footer className="border-t border-white/[0.06] px-6 py-8">
           <div className="mx-auto max-w-5xl flex flex-col sm:flex-row items-center justify-between gap-4">
-            <SignNestLogo size="xs" className="max-w-[100px] opacity-90" />
+            <SignNestLogo size="xs" className="opacity-90" />
             <p className="text-xs text-white/30">&copy; 2026 SignNest. All rights reserved.</p>
           </div>
         </footer>

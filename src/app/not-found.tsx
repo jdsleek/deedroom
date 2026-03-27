@@ -8,7 +8,7 @@ export default function NotFound() {
     <div className="min-h-screen flex flex-col items-center justify-center bg-background px-4">
       <div className="text-center max-w-md">
         <Link href="/" className="inline-block mb-12">
-          <SignNestLogo size="lg" className="max-w-[220px]" />
+          <SignNestLogo size="xl" />
         </Link>
         <h1 className="font-display text-6xl font-bold text-warm-900">404</h1>
         <p className="mt-4 font-display text-xl font-semibold text-warm-800">

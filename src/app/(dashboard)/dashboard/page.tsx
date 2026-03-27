@@ -6,7 +6,7 @@ import { Button } from '@/components/ui/Button'
 import { DealCard } from '@/components/deals/DealCard'
 import { serializeDeal } from '@/lib/serialize'
 import type { DealParty, Document } from '@/types'
-import { Plus } from 'lucide-react'
+import { Plus, ShieldAlert } from 'lucide-react'
 
 function getGreeting() {
   const hour = new Date().getHours()
@@ -19,6 +19,12 @@ export default async function DashboardPage() {
   const session = await auth()
   const userId = (session?.user as { id?: string })?.id
   if (!userId) redirect('/login?redirectTo=/dashboard')
+
+  const profile = await prisma.profile.findUnique({
+    where: { id: userId },
+    select: { kycStatus: true },
+  })
+  const kycStatus = profile?.kycStatus ?? 'pending'
 
   const deals = await prisma.deal.findMany({
     where: {
@@ -85,6 +91,30 @@ export default async function DashboardPage() {
           </span>
         </Link>
       </div>
+
+      {/* KYC Banner */}
+      {kycStatus !== 'verified' && (
+        <Link
+          href="/kyc"
+          className="flex items-start gap-3 rounded-2xl border border-amber-200 bg-amber-50 p-4 hover:bg-amber-100/60 transition-colors"
+        >
+          <ShieldAlert className="h-5 w-5 text-amber-600 mt-0.5 shrink-0" />
+          <div className="flex-1">
+            <p className="text-sm font-semibold text-amber-800">
+              {kycStatus === 'submitted'
+                ? 'KYC under review'
+                : kycStatus === 'rejected'
+                  ? 'KYC was rejected — please resubmit'
+                  : 'Complete identity verification'}
+            </p>
+            <p className="text-sm text-amber-700 mt-0.5">
+              {kycStatus === 'submitted'
+                ? 'Your documents are being reviewed. This usually takes 24-48 hours.'
+                : 'Verify your identity to create deals and sign documents.'}
+            </p>
+          </div>
+        </Link>
+      )}
 
       {/* Quick Actions */}
       <div className="grid grid-cols-4 gap-3">

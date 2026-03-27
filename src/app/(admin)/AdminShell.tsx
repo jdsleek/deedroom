@@ -96,7 +96,7 @@ export function AdminShell({ children, user }: AdminShellProps) {
       <aside className="hidden lg:flex w-[260px] min-h-screen flex-col bg-navy-500 shrink-0">
         <div className="p-6 pb-4">
           <Link href="/admin" className="flex flex-col gap-1">
-            <SignNestLogo size="lg" className="max-w-[200px]" />
+            <SignNestLogo size="lg" />
             <span className="text-[11px] font-semibold text-coral-400 tracking-wide uppercase">Admin</span>
           </Link>
         </div>
@@ -126,7 +126,7 @@ export function AdminShell({ children, user }: AdminShellProps) {
             onClick={() => setMobileMenuOpen(false)}
           >
             <div className="flex flex-col gap-1">
-              <SignNestLogo size="lg" className="max-w-[200px]" />
+              <SignNestLogo size="lg" />
               <span className="text-[11px] font-semibold text-coral-400 tracking-wide uppercase">Admin</span>
             </div>
           </Link>
@@ -155,7 +155,7 @@ export function AdminShell({ children, user }: AdminShellProps) {
               <Menu className="h-6 w-6" />
             </button>
             <div className="flex items-center gap-2 min-w-0">
-              <SignNestLogo size="sm" className="max-w-[120px] shrink-0" />
+              <SignNestLogo size="sm" className="shrink-0" />
               <span className="font-display text-sm font-bold text-white truncate">Admin</span>
             </div>
           </div>

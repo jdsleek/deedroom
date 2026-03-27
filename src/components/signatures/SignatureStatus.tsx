@@ -1,7 +1,7 @@
 'use client'
 
 import { format } from 'date-fns'
-import type { DealParty, SignatureRequest } from '@/types'
+import type { DealParty } from '@/types'
 
 interface SignatureRequestMinimal {
   id?: string
@@ -17,18 +17,19 @@ interface SignatureStatusProps {
 }
 
 export function SignatureStatus({ parties, signatureRequests, documentId }: SignatureStatusProps) {
-  const requests = signatureRequests.filter((sr) => sr.document_id === documentId)
+  const activeParties = parties.filter((p) => p.status !== 'declined')
 
   return (
     <div className="space-y-2">
-      {requests.map((sr) => {
-        const party = parties.find((p) => p.id === sr.party_id)
-        if (!party) return null
-        const signed = !!sr.signed_at
+      {activeParties.map((party) => {
+        const sr = signatureRequests.find(
+          (r) => r.document_id === documentId && r.party_id === party.id
+        )
+        const signed = !!sr?.signed_at
 
         return (
           <div
-            key={sr.id}
+            key={party.id}
             className="flex items-center justify-between border-b border-warm-200 py-2 last:border-0"
           >
             <span className="font-medium text-warm-800">{party.invite_name}</span>
@@ -39,12 +40,16 @@ export function SignatureStatus({ parties, signatureRequests, documentId }: Sign
                     Signed
                   </span>
                   <span className="text-xs text-warm-500">
-                    {sr.signed_at && format(new Date(sr.signed_at), 'MMM d, yyyy HH:mm')}
+                    {sr?.signed_at && format(new Date(sr.signed_at), 'MMM d, yyyy HH:mm')}
                   </span>
                 </>
+              ) : sr ? (
+                <span className="rounded-full bg-amber-50 px-2.5 py-0.5 text-xs font-semibold text-amber-700">
+                  In progress
+                </span>
               ) : (
                 <span className="rounded-full bg-warm-100 px-2.5 py-0.5 text-xs font-semibold text-warm-600">
-                  Pending
+                  Awaiting
                 </span>
               )}
             </div>

@@ -78,9 +78,15 @@ export async function POST(request: Request) {
   const userId = (session?.user as { id?: string })?.id
   if (!userId) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
 
-  const profile = await prisma.profile.findUnique({ where: { id: userId }, select: { role: true } })
+  const profile = await prisma.profile.findUnique({ where: { id: userId }, select: { role: true, kycStatus: true } })
   if (!profile || !can(profile.role, 'create_deal')) {
     return NextResponse.json({ error: 'Insufficient permissions' }, { status: 403 })
+  }
+  if (profile.kycStatus !== 'verified') {
+    return NextResponse.json(
+      { error: 'Identity verification required. Complete KYC before creating deals.' },
+      { status: 403 }
+    )
   }
 
   const body = await request.json()

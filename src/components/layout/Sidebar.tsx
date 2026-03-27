@@ -29,7 +29,7 @@ export function Sidebar() {
     <aside className="hidden lg:flex w-[260px] min-h-screen flex-col bg-navy-500 shrink-0">
       <div className="p-6 pb-4">
         <Link href="/dashboard" className="flex items-center">
-          <SignNestLogo size="lg" className="max-w-[200px]" />
+          <SignNestLogo size="lg" />
         </Link>
       </div>
 

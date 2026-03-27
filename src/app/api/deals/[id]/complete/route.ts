@@ -26,25 +26,47 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
     return NextResponse.json({ error: 'Deal is already completed' }, { status: 400 })
   }
 
+  if (deal.status === 'cancelled') {
+    return NextResponse.json({ error: 'Cannot complete a cancelled deal' }, { status: 400 })
+  }
+
   if (deal.documents.length === 0) {
     return NextResponse.json({ error: 'Cannot complete a deal with no documents' }, { status: 400 })
   }
 
-  const unsignedParties = deal.parties.filter(
-    (p) => p.status !== 'declined' && !deal.signatureRequests.some((s) => s.partyId === p.id && s.signedAt)
-  )
-  if (unsignedParties.length > 0) {
-    const names = unsignedParties.map((p) => p.inviteName).join(', ')
+  const activeParties = deal.parties.filter((p) => p.status !== 'declined')
+  if (activeParties.length === 0) {
+    return NextResponse.json({ error: 'No active parties on this deal' }, { status: 400 })
+  }
+
+  const incompleteParties: string[] = []
+  for (const party of activeParties) {
+    const signedDocCount = deal.signatureRequests.filter(
+      (s) => s.partyId === party.id && s.signedAt
+    ).length
+    if (signedDocCount < deal.documents.length) {
+      const remaining = deal.documents.length - signedDocCount
+      incompleteParties.push(`${party.inviteName} (${remaining} document${remaining > 1 ? 's' : ''} remaining)`)
+    }
+  }
+
+  if (incompleteParties.length > 0) {
     return NextResponse.json(
-      { error: `All parties must sign before completing. Awaiting: ${names}` },
+      { error: `All parties must sign all documents before completing. Awaiting: ${incompleteParties.join(', ')}` },
       { status: 400 }
     )
   }
 
-  await prisma.deal.update({
-    where: { id },
-    data: { status: 'completed', completedAt: new Date() },
-  })
+  await prisma.$transaction([
+    prisma.deal.update({
+      where: { id },
+      data: { status: 'completed', completedAt: new Date() },
+    }),
+    prisma.document.updateMany({
+      where: { dealId: id },
+      data: { isExecuted: true },
+    }),
+  ])
 
   await logAudit({ dealId: id, action: 'deal_completed', actorId: userId })
 
