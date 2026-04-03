@@ -17,10 +17,22 @@ async function ensureAuthTablesExist() {
     const env = { ...process.env, CI: process.env.CI ?? "1" };
     const schemaPath = joinPath(process.cwd(), "prisma", "schema.prisma");
     console.error("[Auth] Running Prisma db push to create missing NextAuth tables:", { schemaPath });
-    execCb(`npx prisma db push --schema "${schemaPath}"`, { env, cwd: process.cwd() }, (err) => {
-      if (err) reject(err);
-      else resolve();
-    });
+    execCb(
+      `npx prisma db push --schema "${schemaPath}"`,
+      { env, cwd: process.cwd() },
+      (err, stdout, stderr) => {
+        if (err) {
+          console.error("[Auth] Prisma db push failed:", {
+            message: err instanceof Error ? err.message : String(err),
+            stderr: typeof stderr === "string" ? stderr.slice(0, 1000) : undefined,
+          });
+          reject(err);
+        } else {
+          console.error("[Auth] Prisma db push succeeded");
+          resolve();
+        }
+      }
+    );
   });
 
   return dbPushInFlight.finally(() => {
@@ -52,7 +64,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
           });
         } catch (e) {
           const msg = e instanceof Error ? e.message : String(e);
-          if (msg.includes("The table `public.User` does not exist")) {
+          if (msg.includes("public.User") && msg.toLowerCase().includes("does not exist")) {
             console.error("[Auth] Missing public.User table detected. Attempting db push then retrying credentials authorize.");
             await ensureAuthTablesExist();
             user = await prisma.user.findFirst({
