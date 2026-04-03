@@ -7,6 +7,7 @@ import { DealCard } from '@/components/deals/DealCard'
 import { serializeDeal } from '@/lib/serialize'
 import type { DealParty, Document } from '@/types'
 import { Plus, ShieldAlert } from 'lucide-react'
+import type { Prisma } from '@prisma/client'
 
 function getGreeting() {
   const hour = new Date().getHours()
@@ -20,26 +21,40 @@ export default async function DashboardPage() {
   const userId = (session?.user as { id?: string })?.id
   if (!userId) redirect('/login?redirectTo=/dashboard')
 
-  const profile = await prisma.profile.findUnique({
-    where: { id: userId },
-    select: { kycStatus: true },
-  })
-  const kycStatus = profile?.kycStatus ?? 'pending'
-
-  const deals = await prisma.deal.findMany({
-    where: {
-      OR: [
-        { createdById: userId },
-        { parties: { some: { userId } } },
-      ],
-    },
+  // Defensive: avoid crashing the entire dashboard into `src/app/error.tsx`
+  // if Prisma/database has a transient failure or a single record breaks.
+  let kycStatus: string = 'pending'
+  type DashboardDeal = Prisma.DealGetPayload<{
     include: {
-      parties: true,
-      documents: { select: { id: true } },
-    },
-    orderBy: { createdAt: 'desc' },
-    take: 10,
-  })
+      parties: true
+      documents: { select: { id: true } }
+    }
+  }>
+  let deals: DashboardDeal[] = []
+  try {
+    const profile = await prisma.profile.findUnique({
+      where: { id: userId },
+      select: { kycStatus: true },
+    })
+    kycStatus = profile?.kycStatus ?? 'pending'
+
+    deals = await prisma.deal.findMany({
+      where: {
+        OR: [
+          { createdById: userId },
+          { parties: { some: { userId } } },
+        ],
+      },
+      include: {
+        parties: true,
+        documents: { select: { id: true } },
+      },
+      orderBy: { createdAt: 'desc' },
+      take: 10,
+    })
+  } catch (e) {
+    console.error('[SignNest] Dashboard data load failed:', e)
+  }
 
   const allDeals = deals.map((d) => ({
     ...serializeDeal(d),
