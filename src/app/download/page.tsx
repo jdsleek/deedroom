@@ -8,7 +8,7 @@ export const metadata: Metadata = {
 }
 
 const APK_URL = '/SignNest.apk'
-const WEB_URL = 'https://signest.up.railway.app'
+const WEB_URL = process.env.NEXT_PUBLIC_APP_URL ?? 'https://signest.up.railway.app'
 
 export default function DownloadPage() {
   return (
