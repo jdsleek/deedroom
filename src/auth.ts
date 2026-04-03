@@ -38,6 +38,17 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
     }),
   ],
   callbacks: {
+    async redirect({ url, baseUrl }) {
+      const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? baseUrl;
+      if (url.startsWith("/")) return `${appUrl}${url}`;
+      try {
+        const u = new URL(url);
+        if (u.origin === baseUrl) return url;
+      } catch {
+        // ignore invalid url and fall back
+      }
+      return appUrl;
+    },
     async jwt({ token, user }) {
       if (user) token.id = user.id;
       return token;
