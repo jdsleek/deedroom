@@ -3,6 +3,7 @@ import Credentials from "next-auth/providers/credentials";
 import { prisma } from "@/lib/db";
 import { compare } from "bcryptjs";
 import { exec as execCb } from "node:child_process";
+import { join as joinPath } from "node:path";
 
 let dbPushInFlight: Promise<void> | null = null;
 
@@ -14,7 +15,9 @@ async function ensureAuthTablesExist() {
   dbPushInFlight = new Promise((resolve, reject) => {
     // Avoid interactive prompts in some environments.
     const env = { ...process.env, CI: process.env.CI ?? "1" };
-    execCb("npx prisma db push --schema prisma/schema.prisma", { env, cwd: process.cwd() }, (err) => {
+    const schemaPath = joinPath(process.cwd(), "prisma", "schema.prisma");
+    console.error("[Auth] Running Prisma db push to create missing NextAuth tables:", { schemaPath });
+    execCb(`npx prisma db push --schema "${schemaPath}"`, { env, cwd: process.cwd() }, (err) => {
       if (err) reject(err);
       else resolve();
     });
@@ -50,6 +53,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         } catch (e) {
           const msg = e instanceof Error ? e.message : String(e);
           if (msg.includes("The table `public.User` does not exist")) {
+            console.error("[Auth] Missing public.User table detected. Attempting db push then retrying credentials authorize.");
             await ensureAuthTablesExist();
             user = await prisma.user.findFirst({
               where: { email: { equals: email, mode: "insensitive" } },
