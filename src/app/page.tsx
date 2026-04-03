@@ -4,7 +4,12 @@ import { auth } from '@/auth'
 import { SignNestLogo } from '@/components/brand/SignNestLogo'
 
 export default async function HomePage() {
-  const session = await auth()
+  let session = null
+  try {
+    session = await auth()
+  } catch (error) {
+    console.error('[HomePage] auth() failed, rendering unauthenticated:', error)
+  }
   if (session?.user) redirect('/dashboard')
 
   return (
