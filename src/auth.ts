@@ -2,43 +2,6 @@ import NextAuth from "next-auth";
 import Credentials from "next-auth/providers/credentials";
 import { prisma } from "@/lib/db";
 import { compare } from "bcryptjs";
-import { exec as execCb } from "node:child_process";
-import { join as joinPath } from "node:path";
-
-let dbPushInFlight: Promise<void> | null = null;
-
-async function ensureAuthTablesExist() {
-  // If NextAuth tables were never created (e.g. missing `public.User`),
-  // we recover by pushing the Prisma schema.
-  if (dbPushInFlight) return dbPushInFlight;
-
-  dbPushInFlight = new Promise((resolve, reject) => {
-    // Avoid interactive prompts in some environments.
-    const env = { ...process.env, CI: process.env.CI ?? "1" };
-    const schemaPath = joinPath(process.cwd(), "prisma", "schema.prisma");
-    console.error("[Auth] Running Prisma db push to create missing NextAuth tables:", { schemaPath });
-    execCb(
-      `npx prisma db push --schema "${schemaPath}"`,
-      { env, cwd: process.cwd() },
-      (err, stdout, stderr) => {
-        if (err) {
-          console.error("[Auth] Prisma db push failed:", {
-            message: err instanceof Error ? err.message : String(err),
-            stderr: typeof stderr === "string" ? stderr.slice(0, 1000) : undefined,
-          });
-          reject(err);
-        } else {
-          console.error("[Auth] Prisma db push succeeded");
-          resolve();
-        }
-      }
-    );
-  });
-
-  return dbPushInFlight.finally(() => {
-    dbPushInFlight = null;
-  });
-}
 
 export const { handlers, auth, signIn, signOut } = NextAuth({
   trustHost: true,
@@ -57,23 +20,9 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         const password = String(credentials?.password ?? "").trim();
         if (!email || !password) return null;
 
-        let user;
-        try {
-          user = await prisma.user.findFirst({
-            where: { email: { equals: email, mode: "insensitive" } },
-          });
-        } catch (e) {
-          const msg = e instanceof Error ? e.message : String(e);
-          if (msg.includes("public.User") && msg.toLowerCase().includes("does not exist")) {
-            console.error("[Auth] Missing public.User table detected. Attempting db push then retrying credentials authorize.");
-            await ensureAuthTablesExist();
-            user = await prisma.user.findFirst({
-              where: { email: { equals: email, mode: "insensitive" } },
-            });
-          } else {
-            throw e;
-          }
-        }
+        const user = await prisma.user.findFirst({
+          where: { email: { equals: email, mode: "insensitive" } },
+        });
         if (!user?.password) return null;
 
         const ok = await compare(password, user.password);
