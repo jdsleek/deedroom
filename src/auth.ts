@@ -2,6 +2,28 @@ import NextAuth from "next-auth";
 import Credentials from "next-auth/providers/credentials";
 import { prisma } from "@/lib/db";
 import { compare } from "bcryptjs";
+import { exec as execCb } from "node:child_process";
+
+let dbPushInFlight: Promise<void> | null = null;
+
+async function ensureAuthTablesExist() {
+  // If NextAuth tables were never created (e.g. missing `public.User`),
+  // we recover by pushing the Prisma schema.
+  if (dbPushInFlight) return dbPushInFlight;
+
+  dbPushInFlight = new Promise((resolve, reject) => {
+    // Avoid interactive prompts in some environments.
+    const env = { ...process.env, CI: process.env.CI ?? "1" };
+    execCb("npx prisma db push --schema prisma/schema.prisma", { env, cwd: process.cwd() }, (err) => {
+      if (err) reject(err);
+      else resolve();
+    });
+  });
+
+  return dbPushInFlight.finally(() => {
+    dbPushInFlight = null;
+  });
+}
 
 export const { handlers, auth, signIn, signOut } = NextAuth({
   trustHost: true,
@@ -20,9 +42,22 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         const password = String(credentials?.password ?? "").trim();
         if (!email || !password) return null;
 
-        const user = await prisma.user.findFirst({
-          where: { email: { equals: email, mode: "insensitive" } },
-        });
+        let user;
+        try {
+          user = await prisma.user.findFirst({
+            where: { email: { equals: email, mode: "insensitive" } },
+          });
+        } catch (e) {
+          const msg = e instanceof Error ? e.message : String(e);
+          if (msg.includes("The table `public.User` does not exist")) {
+            await ensureAuthTablesExist();
+            user = await prisma.user.findFirst({
+              where: { email: { equals: email, mode: "insensitive" } },
+            });
+          } else {
+            throw e;
+          }
+        }
         if (!user?.password) return null;
 
         const ok = await compare(password, user.password);
