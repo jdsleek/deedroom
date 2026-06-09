@@ -109,11 +109,11 @@ All test accounts use password: `password123`
 
 | Email | Role | Name |
 |-------|------|------|
-| test@signnest.local | Realtor | Dev User |
-| landlord@signnest.local | Landlord | Mrs Adebayo |
-| tenant@signnest.local | Tenant | Chinedu Okafor |
-| lawyer@signnest.local | Lawyer | Barrister Eze |
-| admin@signnest.local | Admin | Admin User |
+| test@signnest.ng | Realtor | Dev User |
+| landlord@signnest.ng | Landlord | Mrs Adebayo |
+| tenant@signnest.ng | Tenant | Chinedu Okafor |
+| lawyer@signnest.ng | Lawyer | Barrister Eze |
+| admin@signnest.ng | Admin | Admin User |
 
 ---
 

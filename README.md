@@ -117,7 +117,7 @@ This runs `prisma migrate dev` to create and apply migrations.
 npm run db:seed
 ```
 
-Creates a test user: `test@signnest.local` / `password123`.
+Creates a test user: `test@signnest.ng` / `password123`.
 
 ### Run Development Server
 
@@ -302,7 +302,7 @@ deedroom/
 
 ## Local Login Troubleshooting
 
-If `test@signnest.local` / `password123` does not work:
+If `test@signnest.ng` / `password123` does not work:
 
 1. Run the seed: `npm run db:seed`
 2. Ensure `.env.local` has `AUTH_SECRET` or `NEXTAUTH_SECRET` and `NEXTAUTH_URL=http://localhost:3000`

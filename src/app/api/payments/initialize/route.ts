@@ -29,7 +29,7 @@ export async function POST(request: Request) {
     }
 
     const user = await prisma.user.findUnique({ where: { id: userId } })
-    const email = user?.email ?? `${userId}@signnest.local`
+    const email = user?.email ?? `${userId}@signnest.ng`
 
     const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? 'http://localhost:3000'
     const callbackUrl = `${appUrl}/deals/${payment.dealId}/payments?ref=${paymentId}`
